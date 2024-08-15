@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>堅果量計算工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        input[type="number"] {
+            width: 60px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>堅果量計算工具</h1>
+
+        <label for="package-weight">每包克數:</label>
+        <input type="number" id="package-weight" value="42"> 克
+
+        <br><br>
+
+        <label for="package-count">生產包數:</label>
+        <input type="number" id="package-count" value="100"> 包
+
+        <br><br>
+
+        <label for="combination">選擇組合:</label>
+        <select id="combination">
+            <option value="活腦組合">活腦組合</option>
+            <option value="美肌組合">美肌組合</option>
+            <option value="健身組合">健身組合</option>
+            <option value="楓糖肉桂">楓糖肉桂</option>
+            <option value="辣味巧克力">辣味巧克力</option>
+            <option value="椰蓉咖哩">椰蓉咖哩</option>
+            <option value="海鹽迷迭香">海鹽迷迭香</option>
+        </select>
+
+        <br><br>
+
+        <button onclick="calculate()">計算所需堅果量</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const nutsData = {
+            "活腦組合": { "杏仁果": 15, "核桃": 35, "夏威夷豆": 15, "腰果": 0, "榛果": 0, "胡桃": 10, "巴西豆": 15, "南瓜籽": 25 },
+            "美肌組合": { "杏仁果": 30, "核桃": 30, "夏威夷豆": 15, "腰果": 0, "榛果": 25, "胡桃": 0, "巴西豆": 20, "南瓜籽": 10 },
+            "健身組合": { "杏仁果": 30, "核桃": 25, "夏威夷豆": 15, "腰果": 20, "榛果": 0, "胡桃": 15, "巴西豆": 20, "南瓜籽": 25 },
+            "楓糖肉桂": { "杏仁果": 20, "核桃": 35, "夏威夷豆": 0, "腰果": 30, "榛果": 15, "胡桃": 0, "巴西豆": 0, "南瓜籽": 0 },
+            "辣味巧克力": { "杏仁果": 20, "核桃": 35, "夏威夷豆": 0, "腰果": 30, "榛果": 15, "胡桃": 0, "巴西豆": 0, "南瓜籽": 0 },
+            "椰蓉咖哩": { "杏仁果": 20, "核桃": 35, "夏威夷豆": 0, "腰果": 30, "榛果": 0, "胡桃": 15, "巴西豆": 0, "南瓜籽": 0 },
+            "海鹽迷迭香": { "杏仁果": 30, "核桃": 30, "夏威夷豆": 0, "腰果": 25, "榛果": 15, "胡桃": 0, "巴西豆": 0, "南瓜籽": 0 },
+        };
+
+        function calculate() {
+            const weightPerPackage = parseFloat(document.getElementById('package-weight').value);
+            const packageCount = parseInt(document.getElementById('package-count').value);
+            const combination = document.getElementById('combination').value;
+
+            const nutPercentages = nutsData[combination];
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.innerHTML = '<h3>所需堅果總量：</h3>';
+            let resultHTML = '<ul>';
+            for (const nut in nutPercentages) {
+                const percentage = nutPercentages[nut] / 100;
+                const totalWeight = percentage * weightPerPackage * packageCount;
+                resultHTML += `<li>${nut}: ${totalWeight.toFixed(2)} 克</li>`;
+            }
+            resultHTML += '</ul>';
+
+            resultDiv.innerHTML += resultHTML;
+        }
+    </script>
+</body>
+</html>
