@@ -265,55 +265,54 @@
 
         // 計算總量
         function calculate() {
-            const totalNuts = {};
-            let totalWeight = 0;
-            let totalPackages = 0;
-            let totalCost = 0;
-            const showCost = document.getElementById('show-cost').checked;
+    const totalNuts = {};
+    let totalWeight = 0;
+    let totalPackages = 0;
+    let totalCost = 0;
+    let showCost = document.getElementById('show-cost').checked;
 
-            cart.forEach(item => {
-                const nutPercentages = nutsData[item.combination];
-                totalPackages += item.packageCount;
-                totalWeight += item.weightPerPackage * item.packageCount;
+    cart.forEach(item => {
+        const nutPercentages = nutsData[item.combination];
+        totalPackages += item.packageCount;
+        totalWeight += item.weightPerPackage * item.packageCount;
 
-                for (const nut in nutPercentages) {
-                    const percentage = nutPercentages[nut] / 100;
-                    const nutWeight = percentage * item.weightPerPackage * item.packageCount;
-                    if (!totalNuts[nut]) {
-                        totalNuts[nut] = 0;
-                    }
-                    totalNuts[nut] += nutWeight;
-                }
-
-                if (showCost) {
-                    const cost = calculateCost(item.combination, item.weightPerPackage, item.packageCount);
-                    totalCost += cost.totalCost;
-                }
-            });
-
-            lastResult = { totalNuts, totalWeight, totalPackages, totalCost, showCost };
-            displayResult(totalNuts, totalWeight, totalPackages, totalCost, showCost);
+        for (const nut in nutPercentages) {
+            const percentage = nutPercentages[nut] / 100;
+            const nutWeight = percentage * item.weightPerPackage * item.packageCount;
+            if (!totalNuts[nut]) {
+                totalNuts[nut] = 0;
+            }
+            totalNuts[nut] += nutWeight;
         }
 
+        if (showCost) {
+            const cost = calculateCost(item.combination, item.weightPerPackage, item.packageCount);
+            totalCost += cost.totalCost;
+        }
+    });
+
+    lastResult = { totalNuts, totalWeight, totalPackages, totalCost, showCost };
+    displayResult(totalNuts, totalWeight, totalPackages, totalCost, showCost);
+}
         // 顯示計算結果
         function displayResult(totalNuts, totalWeight, totalPackages, totalCost, showCost) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = '<ul class="list-disc list-inside">';
-            for (const nut in totalNuts) {
-                const totalWeightGrams = Math.round(totalNuts[nut]);
-                resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(totalWeightGrams / 1000).toFixed(2)} 公斤)</li>`;
-            }
-            resultDiv.innerHTML += '</ul>';
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '<ul class="list-disc list-inside">';
+    for (const nut in totalNuts) {
+        const totalWeightGrams = Math.round(totalNuts[nut]);
+        resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(totalWeightGrams / 1000).toFixed(2)} 公斤)</li>`;
+    }
+    resultDiv.innerHTML += '</ul>';
 
-            resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages}</p>`;
-            resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
+    resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages}</p>`;
+    resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
 
-            if (showCost) {
-                resultDiv.innerHTML += `<p>每包平均成本: $${(totalCost / totalPackages).toFixed(2)}</p>`;
-                resultDiv.innerHTML += `<p>每克平均成本: $${(totalCost / totalWeight).toFixed(4)}</p>`;
-            }
-        }
-
+    if (showCost) {
+        resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
+        resultDiv.innerHTML += `<p>每包平均成本: $${(totalCost / totalPackages).toFixed(2)}</p>`;
+        resultDiv.innerHTML += `<p>每克平均成本: $${(totalCost / totalWeight).toFixed(4)}</p>`;
+    }
+}
         // 匯出結果為TXT文件
         function exportToTxt() {
             let output = '';
