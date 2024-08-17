@@ -266,11 +266,303 @@
   <script>
     // 初始化拖曳功能
     $(function () {
-      $(".sortable").sortable();
-      $(".sortable").disableSelection();
-    });
+        $(".sortable").sortable();
+        $(".sortable").disableSelection();
+      });
 
-    // 堅果數據處理...
+      // 定義堅果組合資料
+      const nutsData = {
+        活腦組合: {
+          核桃: 35,
+          杏仁果: 25,
+          南瓜籽: 20,
+          巴西豆: 10,
+          胡桃: 10,
+          夏威夷豆: 0,
+        },
+        美肌組合: {
+          杏仁果: 35,
+          南瓜籽: 25,
+          榛果: 20,
+          夏威夷豆: 10,
+          胡桃: 10,
+          巴西豆: 0,
+        },
+        健身組合: {
+          腰果: 30,
+          杏仁果: 25,
+          南瓜籽: 20,
+          核桃: 15,
+          巴西豆: 10,
+          胡桃: 0,
+          夏威夷豆: 0,
+        },
+        楓糖肉桂: {
+          杏仁果: 20,
+          核桃: 35,
+          夏威夷豆: 0,
+          腰果: 30,
+          榛果: 15,
+          胡桃: 0,
+          巴西豆: 0,
+          南瓜籽: 0,
+        },
+        辣味巧克力: {
+          杏仁果: 20,
+          核桃: 35,
+          夏威夷豆: 0,
+          腰果: 30,
+          榛果: 15,
+          胡桃: 0,
+          巴西豆: 0,
+          南瓜籽: 0,
+        },
+        椰蓉咖哩: {
+          杏仁果: 20,
+          核桃: 35,
+          夏威夷豆: 0,
+          腰果: 30,
+          榛果: 0,
+          胡桃: 15,
+          巴西豆: 0,
+          南瓜籽: 0,
+        },
+        海鹽迷迭香: {
+          杏仁果: 30,
+          核桃: 30,
+          夏威夷豆: 0,
+          腰果: 25,
+          榛果: 15,
+          胡桃: 0,
+          巴西豆: 0,
+          南瓜籽: 0,
+        },
+      };
+
+      // 堅果價格資料
+      const nutPrices = {
+        杏仁果: 470,
+        腰果: 620,
+        核桃: 535,
+        夏威夷豆: 950,
+        榛果: 620,
+        胡桃: 830,
+        巴西豆: 1200,
+        南瓜籽: 400,
+      };
+
+      let cart = [];
+      let lastResult = {};
+
+      // 添加小計項目到購物車
+      function addToCart() {
+        const weightPerPackage = parseFloat(
+          document.getElementById("package-weight").value
+        );
+        const packageCount = parseInt(
+          document.getElementById("package-count").value
+        );
+        const combination = document.getElementById("combination").value;
+
+        cart.push({ weightPerPackage, packageCount, combination });
+        updateCart();
+      }
+
+      // 更新小計列表
+      function updateCart() {
+        const cartList = document.getElementById("cart-list");
+        const showCost = document.getElementById("show-cost").checked;
+        cartList.innerHTML = "";
+        cart.forEach((item, index) => {
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+            <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
+            <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
+          `;
+
+          if (showCost) {
+            const cost = calculateCost(
+              item.combination,
+              item.weightPerPackage,
+              item.packageCount
+            );
+            const costInfo = document.createElement("div");
+            costInfo.classList.add("cost-info");
+            costInfo.textContent = `每包成本: $${cost.perPackage.toFixed(
+              2
+            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
+            listItem.appendChild(costInfo);
+          }
+
+          cartList.appendChild(listItem);
+        });
+      }
+
+      // 計算成本
+      function calculateCost(combination, weightPerPackage, packageCount) {
+        const nutPercentages = nutsData[combination];
+        let totalCost = 0;
+
+        for (const nut in nutPercentages) {
+          const percentage = nutPercentages[nut] / 100;
+          const nutWeight = percentage * weightPerPackage;
+          const nutCostPerGram = nutPrices[nut] / 1000;
+          totalCost += nutWeight * nutCostPerGram;
+        }
+
+        const totalCostForAllPackages = totalCost * packageCount;
+        return {
+          totalCost: totalCostForAllPackages,
+          perPackage: totalCost,
+          perGram: totalCost / weightPerPackage,
+        };
+      }
+
+      // 移除小計項目
+      function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+      }
+
+      // 重置小計
+      function resetCart() {
+        cart = [];
+        updateCart();
+        document.getElementById("result").innerHTML = "";
+        lastResult = {};
+      }
+
+      // 計算總量
+      function calculate() {
+        const totalNuts = {};
+        let totalWeight = 0;
+        let totalPackages = 0;
+        let totalCost = 0;
+        let showCost = document.getElementById("show-cost").checked;
+
+        cart.forEach((item) => {
+          const nutPercentages = nutsData[item.combination];
+          totalPackages += item.packageCount;
+          totalWeight += item.weightPerPackage * item.packageCount;
+
+          for (const nut in nutPercentages) {
+            const percentage = nutPercentages[nut] / 100;
+            const nutWeight =
+              percentage * item.weightPerPackage * item.packageCount;
+            if (!totalNuts[nut]) {
+              totalNuts[nut] = 0;
+            }
+            totalNuts[nut] += nutWeight;
+          }
+
+          if (showCost) {
+            const cost = calculateCost(
+              item.combination,
+              item.weightPerPackage,
+              item.packageCount
+            );
+            totalCost += cost.totalCost;
+          }
+        });
+
+        lastResult = {
+          totalNuts,
+          totalWeight,
+          totalPackages,
+          totalCost,
+          showCost,
+        };
+        displayResult(
+          totalNuts,
+          totalWeight,
+          totalPackages,
+          totalCost,
+          showCost
+        );
+      }
+      // 顯示計算結果
+      function displayResult(
+        totalNuts,
+        totalWeight,
+        totalPackages,
+        totalCost,
+        showCost
+      ) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = '<ul class="list-disc list-inside">';
+        for (const nut in totalNuts) {
+          const totalWeightGrams = Math.round(totalNuts[nut]);
+          resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(
+            totalWeightGrams / 1000
+          ).toFixed(2)} 公斤)</li>`;
+        }
+        resultDiv.innerHTML += "</ul>";
+
+        resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages}</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
+          2
+        )} 公斤</p>`;
+
+        if (showCost) {
+          resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
+          resultDiv.innerHTML += `<p>每包平均成本: $${(
+            totalCost / totalPackages
+          ).toFixed(2)}</p>`;
+          resultDiv.innerHTML += `<p>每克平均成本: $${(
+            totalCost / totalWeight
+          ).toFixed(4)}</p>`;
+        }
+      }
+      // 匯出結果為TXT文件
+      function exportToTxt() {
+        let output = "";
+
+        // 小計部分
+        output += "小計:\n";
+        cart.forEach((item) => {
+          let line = `${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包`;
+          if (item.showCost) {
+            const cost = calculateCost(
+              item.combination,
+              item.weightPerPackage,
+              item.packageCount
+            );
+            line += ` | 每包成本: $${cost.perPackage.toFixed(
+              2
+            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
+          }
+          output += line + "\n";
+        });
+
+        output += "\n總計:\n";
+        for (const nut in lastResult.totalNuts) {
+          const totalWeightGrams = Math.round(lastResult.totalNuts[nut]);
+          output += `${nut}: ${totalWeightGrams} 克 (${(
+            totalWeightGrams / 1000
+          ).toFixed(2)} 公斤)\n`;
+        }
+
+        output += `\n總包數: ${lastResult.totalPackages}\n`;
+        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
+          2
+        )} 公斤\n`;
+
+        if (lastResult.showCost) {
+          output += `每包平均成本: $${(
+            lastResult.totalCost / lastResult.totalPackages
+          ).toFixed(2)}\n`;
+          output += `每克平均成本: $${(
+            lastResult.totalCost / lastResult.totalWeight
+          ).toFixed(4)}\n`;
+        }
+
+        // 生成並下載 txt 文件
+        const blob = new Blob([output], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "nuts_calculation.txt";
+        link.click();
+      }
 
     // 顯示彈窗
     function showNutRatios() {
