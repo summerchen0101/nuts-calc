@@ -9,10 +9,6 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
-    />
     <style>
       /* 使用莫蘭迪色系 */
       body {
@@ -114,9 +110,59 @@
       .btn-export:hover {
         background-color: #667a85;
       }
+
+      /* 自定義彈窗 */
+      .custom-alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        display: none;
+      }
+
+      .custom-alert {
+        background-color: #f0eee9;
+        border: 1px solid #d3cec4;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        max-height: 90vh;
+        overflow-y: auto;
+        width: 400px;
+        max-width: 90vw;
+      }
+
+      .custom-alert h3 {
+        margin-bottom: 15px;
+        font-size: 20px;
+        color: #4d4d4d;
+      }
+
+      .custom-alert p {
+        margin-bottom: 15px;
+        color: #4d4d4d;
+      }
+
+      .custom-alert button {
+        background-color: #a16e5a;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .custom-alert button:hover {
+        background-color: #8c5b4a;
+      }
     </style>
   </head>
-
   <body class="p-6">
     <div class="container mx-auto">
       <div class="flex justify-between items-center mb-6">
@@ -213,6 +259,15 @@
       </div>
     </div>
 
+    <!-- 自定义弹窗 -->
+    <div class="custom-alert-overlay" id="customAlert">
+      <div class="custom-alert">
+        <h3>堅果比例</h3>
+        <p id="alertContent"></p>
+        <button onclick="closeCustomAlert()">關閉</button>
+      </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
@@ -225,29 +280,29 @@
       // 定義堅果組合資料
       const nutsData = {
         活腦組合: {
-          杏仁果: 20,
-          核桃: 30,
-          夏威夷豆: 15,
-          胡桃: 10,
-          巴西豆: 10,
+          核桃: 35,
+          杏仁果: 25,
           南瓜籽: 20,
+          巴西豆: 10,
+          胡桃: 10,
+          夏威夷豆: 0,
         },
         美肌組合: {
           杏仁果: 35,
-          核桃: 25,
-          夏威夷豆: 15,
+          南瓜籽: 25,
           榛果: 20,
-          巴西豆: 20,
-          南瓜籽: 15,
+          夏威夷豆: 10,
+          胡桃: 10,
+          巴西豆: 0,
         },
         健身組合: {
-          杏仁果: 35,
-          核桃: 20,
-          夏威夷豆: 10,
-          腰果: 25,
-          胡桃: 15,
-          巴西豆: 15,
-          南瓜籽: 25,
+          腰果: 30,
+          杏仁果: 25,
+          南瓜籽: 20,
+          核桃: 15,
+          巴西豆: 10,
+          胡桃: 0,
+          夏威夷豆: 0,
         },
         楓糖肉桂: {
           杏仁果: 20,
@@ -328,9 +383,9 @@
         cart.forEach((item, index) => {
           const listItem = document.createElement("li");
           listItem.innerHTML = `
-                    <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
-                    <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
-                `;
+            <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
+            <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
+          `;
 
           if (showCost) {
             const cost = calculateCost(
@@ -516,6 +571,17 @@
         link.click();
       }
 
+      // 顯示自定義彈窗
+      function showCustomAlert(message) {
+        document.getElementById("alertContent").innerText = message;
+        document.getElementById("customAlert").style.display = "flex";
+      }
+
+      // 關閉自定義彈窗
+      function closeCustomAlert() {
+        document.getElementById("customAlert").style.display = "none";
+      }
+
       // 新增的顯示比例函數
       function showNutRatios() {
         let output = "各堅果組合的比例:\n\n";
@@ -526,7 +592,7 @@
           }
           output += "\n";
         }
-        alert(output);
+        showCustomAlert(output);
       }
     </script>
   </body>
