@@ -1,271 +1,274 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>堅果量計算工具</title>
-  <!-- 引入Tailwind CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    /* 使用莫蘭迪色系 */
-    body {
-      background-color: #edeae0;
-      color: #4d4d4d;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>堅果量計算工具</title>
+    <!-- 引入Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* 使用莫蘭迪色系 */
+      body {
+        background-color: #edeae0;
+        color: #4d4d4d;
+      }
 
-    .subtotal-container,
-    .result-container {
-      border: 1px solid #d3cec4;
-      border-radius: 8px;
-      background-color: #f0eee9;
-    }
+      .subtotal-container,
+      .result-container {
+        border: 1px solid #d3cec4;
+        border-radius: 8px;
+        background-color: #f0eee9;
+      }
 
-    ul#cart-list {
-      list-style-type: none;
-      padding: 0;
-    }
+      ul#cart-list {
+        list-style-type: none;
+        padding: 0;
+      }
 
-    ul#cart-list li {
-      margin-bottom: 8px;
-      padding: 8px;
-      background-color: #d3cec4;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+      ul#cart-list li {
+        margin-bottom: 8px;
+        padding: 8px;
+        background-color: #d3cec4;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
 
-    ul#cart-list li .delete-button {
-      background-color: #a16e5a;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-      margin-left: auto;
-      order: 2;
-    }
+      ul#cart-list li .delete-button {
+        background-color: #a16e5a;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        margin-left: auto;
+        order: 2;
+      }
 
-    ul#cart-list li .delete-button:hover {
-      background-color: #8c5b4a;
-    }
+      ul#cart-list li .delete-button:hover {
+        background-color: #8c5b4a;
+      }
 
-    ul#cart-list li .cost-info {
-      margin-top: 8px;
-      order: 1;
-      width: 100%;
-    }
+      ul#cart-list li .cost-info {
+        margin-top: 8px;
+        order: 1;
+        width: 100%;
+      }
 
-    /* 調整第三欄的排版 */
-    .result-container ul {
-      padding-left: 20px;
-      margin-bottom: 20px;
-    }
+      /* 調整第三欄的排版 */
+      .result-container ul {
+        padding-left: 20px;
+        margin-bottom: 20px;
+      }
 
-    .result-container ul li {
-      margin-bottom: 8px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
+      .result-container ul li {
+        margin-bottom: 8px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
 
-    .result-container p {
-      font-size: 18px;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      font-weight: bold;
-    }
+      .result-container p {
+        font-size: 18px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        font-weight: bold;
+      }
 
-    .btn-reset {
-      background-color: #8c7b75;
-    }
+      .btn-reset {
+        background-color: #8c7b75;
+      }
 
-    .btn-reset:hover {
-      background-color: #77655e;
-    }
+      .btn-reset:hover {
+        background-color: #77655e;
+      }
 
-    .btn-add {
-      background-color: #a16e5a;
-    }
+      .btn-add {
+        background-color: #a16e5a;
+      }
 
-    .btn-add:hover {
-      background-color: #8c5b4a;
-    }
+      .btn-add:hover {
+        background-color: #8c5b4a;
+      }
 
-    .btn-calculate {
-      background-color: #a7a89e;
-    }
+      .btn-calculate {
+        background-color: #a7a89e;
+      }
 
-    .btn-calculate:hover {
-      background-color: #8e8f85;
-    }
+      .btn-calculate:hover {
+        background-color: #8e8f85;
+      }
 
-    .btn-export {
-      background-color: #7a8c99;
-    }
+      .btn-export {
+        background-color: #7a8c99;
+      }
 
-    .btn-export:hover {
-      background-color: #667a85;
-    }
+      .btn-export:hover {
+        background-color: #667a85;
+      }
 
-    /* 自定義彈窗 */
-    .custom-alert-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      display: none;
-    }
+      /* 自定義彈窗 */
+      .custom-alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        display: none;
+      }
 
-    .custom-alert {
-      background-color: #f0eee9;
-      border: 1px solid #d3cec4;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-      max-height: 95vh;
-      overflow-y: auto;
-      width: 95%;
-      max-width: 1200px;
-      position: relative;
-    }
+      .custom-alert {
+        background-color: #f0eee9;
+        border: 1px solid #d3cec4;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        max-height: 95vh;
+        overflow-y: auto;
+        width: 95%;
+        max-width: 1200px;
+        position: relative;
+      }
 
-    .custom-alert .close-button {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background-color: transparent;
-      border: none;
-      font-size: 22px;
-      cursor: pointer;
-      color: #4d4d4d;
-    }
+      .custom-alert .close-button {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: transparent;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #4d4d4d;
+      }
 
-    iframe.chart-frame {
-      width: 100%;
-      height: 90vh;
-      border: none;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-  </style>
-</head>
-<body class="p-6">
-  <div class="container mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">堅果量計算工具</h1>
-      <button
-        id="view-ratio-btn"
-        class="text-white font-bold py-2 px-4 rounded btn-add"
-        onclick="showNutRatios()"
-      >
-        查看比例
-      </button>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div>
-        <label for="package-weight" class="block text-lg font-semibold mb-2"
-          >每包克數:</label
-        >
-        <input
-          type="number"
-          id="package-weight"
-          class="w-full border rounded p-2 mb-4"
-          value="42"
-        />
-
-        <label for="package-count" class="block text-lg font-semibold mb-2"
-          >生產包數:</label
-        >
-        <input
-          type="number"
-          id="package-count"
-          class="w-full border rounded p-2 mb-4"
-          value="1000"
-        />
-
-        <label for="combination" class="block text-lg font-semibold mb-2"
-          >選擇組合:</label
-        >
-        <select id="combination" class="w-full border rounded p-2 mb-4">
-          <option value="活腦組合">活腦組合</option>
-          <option value="美肌組合">美肌組合</option>
-          <option value="健身組合">健身組合</option>
-          <option value="楓糖肉桂">楓糖肉桂</option>
-          <option value="辣味巧克力">辣味巧克力</option>
-          <option value="椰蓉咖哩">椰蓉咖哩</option>
-          <option value="海鹽迷迭香">海鹽迷迭香</option>
-        </select>
-
-        <label class="block text-lg font-semibold mb-4">
-          <input type="checkbox" id="show-cost" onchange="updateCart()" />
-          顯示成本
-        </label>
-
-        <div class="flex gap-x-4">
-          <button
-            onclick="resetCart()"
-            class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-reset"
-          >
-            重置小計
-          </button>
-          <button
-            onclick="addToCart()"
-            class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-add"
-          >
-            加入小計
-          </button>
-        </div>
+      iframe.chart-frame {
+        width: 100%;
+        height: 90vh;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="p-6">
+    <div class="container mx-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">堅果量計算工具</h1>
         <button
-          onclick="calculate()"
-          class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-calculate"
+          id="view-ratio-btn"
+          class="text-white font-bold py-2 px-4 rounded btn-add"
+          onclick="showNutRatios()"
         >
-          計算總量
-        </button>
-        <button
-          onclick="exportToTxt()"
-          class="w-full text-white font-bold py-2 px-4 rounded btn-export"
-        >
-          匯出結果
+          查看比例
         </button>
       </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <label for="package-weight" class="block text-lg font-semibold mb-2"
+            >每包克數:</label
+          >
+          <input
+            type="number"
+            id="package-weight"
+            class="w-full border rounded p-2 mb-4"
+            value="42"
+          />
 
-      <div class="subtotal-container p-4">
-        <h3 class="text-xl font-bold mb-4">小計</h3>
-        <div class="cart-items" id="cart-items">
-          <ul id="cart-list" class="sortable"></ul>
+          <label for="package-count" class="block text-lg font-semibold mb-2"
+            >生產包數:</label
+          >
+          <input
+            type="number"
+            id="package-count"
+            class="w-full border rounded p-2 mb-4"
+            value="1000"
+          />
+
+          <label for="combination" class="block text-lg font-semibold mb-2"
+            >選擇組合:</label
+          >
+          <select id="combination" class="w-full border rounded p-2 mb-4">
+            <option value="活腦組合">活腦組合</option>
+            <option value="美肌組合">美肌組合</option>
+            <option value="健身組合">健身組合</option>
+            <option value="楓糖肉桂">楓糖肉桂</option>
+            <option value="辣味巧克力">辣味巧克力</option>
+            <option value="椰蓉咖哩">椰蓉咖哩</option>
+            <option value="海鹽迷迭香">海鹽迷迭香</option>
+          </select>
+
+          <label class="block text-lg font-semibold mb-4">
+            <input type="checkbox" id="show-cost" onchange="updateCart()" />
+            顯示成本
+          </label>
+
+          <div class="flex gap-x-4">
+            <button
+              onclick="resetCart()"
+              class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-reset"
+            >
+              重置小計
+            </button>
+            <button
+              onclick="addToCart()"
+              class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-add"
+            >
+              加入小計
+            </button>
+          </div>
+
+        </div>
+
+        <div class="subtotal-container p-4">
+          <h3 class="text-xl font-bold mb-4">小計</h3>
+          <div class="cart-items" id="cart-items">
+            <ul id="cart-list" class="sortable"></ul>
+          </div>
+        </div>
+
+        <div class="result-container p-4">
+          <button
+            onclick="calculate()"
+            class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-calculate"
+          >
+            計算總量
+          </button>
+
+          <h3 class="text-xl font-bold mb-4">總量計算</h3>
+          <div class="result" id="result"></div>
+          <button
+            id="export-btn"
+            onclick="exportToTxt()"
+            class="w-full text-white font-bold py-2 px-4 rounded btn-export hidden"
+          >
+            匯出結果
+          </button>
         </div>
       </div>
+    </div>
 
-      <div class="result-container p-4">
-        <h3 class="text-xl font-bold mb-4">總量計算</h3>
-        <div class="result" id="result"></div>
+    <!-- 自定義彈窗，嵌入 chart.html -->
+    <div class="custom-alert-overlay" id="customAlert">
+      <div class="custom-alert">
+        <button class="close-button" onclick="closeCustomAlert()">X</button>
+        <iframe src="chart.html" class="chart-frame"></iframe>
       </div>
     </div>
-  </div>
 
-  <!-- 自定義彈窗，嵌入 chart.html -->
-  <div class="custom-alert-overlay" id="customAlert">
-    <div class="custom-alert">
-      <button class="close-button" onclick="closeCustomAlert()">X</button>
-      <iframe src="chart.html" class="chart-frame"></iframe>
-    </div>
-  </div>
-
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-  <script>
-    // 初始化拖曳功能
-    $(function () {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+      // 初始化拖曳功能
+      $(function () {
         $(".sortable").sortable();
         $(".sortable").disableSelection();
       });
@@ -430,6 +433,7 @@
         updateCart();
         document.getElementById("result").innerHTML = "";
         lastResult = {};
+        document.getElementById("export-btn").classList.add("hidden");
       }
 
       // 計算總量
@@ -479,6 +483,11 @@
           totalCost,
           showCost
         );
+
+        // 顯示匯出按鈕
+        if (totalPackages > 0) {
+          document.getElementById("export-btn").classList.remove("hidden");
+        }
       }
       // 顯示計算結果
       function displayResult(
@@ -521,7 +530,7 @@
         output += "小計:\n";
         cart.forEach((item) => {
           let line = `${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包`;
-          if (item.showCost) {
+          if (document.getElementById("show-cost").checked) {
             const cost = calculateCost(
               item.combination,
               item.weightPerPackage,
@@ -548,6 +557,7 @@
         )} 公斤\n`;
 
         if (lastResult.showCost) {
+          output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
           output += `每包平均成本: $${(
             lastResult.totalCost / lastResult.totalPackages
           ).toFixed(2)}\n`;
@@ -563,16 +573,15 @@
         link.download = "nuts_calculation.txt";
         link.click();
       }
+      // 顯示彈窗
+      function showNutRatios() {
+        document.getElementById("customAlert").style.display = "flex";
+      }
 
-    // 顯示彈窗
-    function showNutRatios() {
-      document.getElementById("customAlert").style.display = "flex";
-    }
-
-    // 關閉彈窗
-    function closeCustomAlert() {
-      document.getElementById("customAlert").style.display = "none";
-    }
-  </script>
-</body>
+      // 關閉彈窗
+      function closeCustomAlert() {
+        document.getElementById("customAlert").style.display = "none";
+      }
+    </script>
+  </body>
 </html>
