@@ -264,101 +264,32 @@
       </div>
     </div>
 
+    <!-- 自定義彈窗，嵌入 chart.html -->
+    <div class="custom-alert-overlay" id="customAlert">
+      <div class="custom-alert">
+        <button class="close-button" onclick="closeCustomAlert()">X</button>
+        <iframe src="chart.html" class="chart-frame"></iframe>
+      </div>
+    </div>
+
+    <!-- 引入外部JavaScript文件 -->
+    <script type="module" src="./lib/nuts-data.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script>
+    <script type="module">
+      import { nutsData, nutPrices } from "./lib/nuts-data.js";
+
       // 初始化拖曳功能
       $(function () {
         $(".sortable").sortable();
         $(".sortable").disableSelection();
       });
 
-      // 定義堅果組合資料
-      const nutsData = {
-        活腦組合: {
-          核桃: 35,
-          杏仁果: 25,
-          南瓜籽: 20,
-          巴西豆: 10,
-          胡桃: 10,
-          夏威夷豆: 0,
-        },
-        美肌組合: {
-          杏仁果: 35,
-          南瓜籽: 25,
-          榛果: 20,
-          夏威夷豆: 10,
-          胡桃: 10,
-          巴西豆: 0,
-        },
-        健身組合: {
-          腰果: 30,
-          杏仁果: 25,
-          南瓜籽: 20,
-          核桃: 15,
-          巴西豆: 10,
-          胡桃: 0,
-          夏威夷豆: 0,
-        },
-        楓糖肉桂: {
-          杏仁果: 20,
-          核桃: 35,
-          夏威夷豆: 0,
-          腰果: 30,
-          榛果: 15,
-          胡桃: 0,
-          巴西豆: 0,
-          南瓜籽: 0,
-        },
-        辣味巧克力: {
-          杏仁果: 20,
-          核桃: 35,
-          夏威夷豆: 0,
-          腰果: 30,
-          榛果: 15,
-          胡桃: 0,
-          巴西豆: 0,
-          南瓜籽: 0,
-        },
-        椰蓉咖哩: {
-          杏仁果: 20,
-          核桃: 35,
-          夏威夷豆: 0,
-          腰果: 30,
-          榛果: 0,
-          胡桃: 15,
-          巴西豆: 0,
-          南瓜籽: 0,
-        },
-        海鹽迷迭香: {
-          杏仁果: 30,
-          核桃: 30,
-          夏威夷豆: 0,
-          腰果: 25,
-          榛果: 15,
-          胡桃: 0,
-          巴西豆: 0,
-          南瓜籽: 0,
-        },
-      };
-
-      // 堅果價格資料
-      const nutPrices = {
-        杏仁果: 470,
-        腰果: 620,
-        核桃: 535,
-        夏威夷豆: 950,
-        榛果: 620,
-        胡桃: 830,
-        巴西豆: 1200,
-        南瓜籽: 400,
-      };
-
       let cart = [];
       let lastResult = {};
 
-      // 添加小計項目到購物車
-      function addToCart() {
+      // 將函數掛載到 window 對象上
+      window.addToCart = function addToCart() {
         const weightPerPackage = parseFloat(
           document.getElementById("package-weight").value
         );
@@ -369,10 +300,9 @@
 
         cart.push({ weightPerPackage, packageCount, combination });
         updateCart();
-      }
+      };
 
-      // 更新小計列表
-      function updateCart() {
+      window.updateCart = function updateCart() {
         const cartList = document.getElementById("cart-list");
         const showCost = document.getElementById("show-cost").checked;
         cartList.innerHTML = "";
@@ -399,10 +329,9 @@
 
           cartList.appendChild(listItem);
         });
-      }
+      };
 
-      // 計算成本
-      function calculateCost(combination, weightPerPackage, packageCount) {
+      window.calculateCost = function calculateCost(combination, weightPerPackage, packageCount) {
         const nutPercentages = nutsData[combination];
         let totalCost = 0;
 
@@ -419,25 +348,22 @@
           perPackage: totalCost,
           perGram: totalCost / weightPerPackage,
         };
-      }
+      };
 
-      // 移除小計項目
-      function removeFromCart(index) {
+      window.removeFromCart = function removeFromCart(index) {
         cart.splice(index, 1);
         updateCart();
-      }
+      };
 
-      // 重置小計
-      function resetCart() {
+      window.resetCart = function resetCart() {
         cart = [];
         updateCart();
         document.getElementById("result").innerHTML = "";
         lastResult = {};
         document.getElementById("export-btn").classList.add("hidden");
-      }
+      };
 
-      // 計算總量
-      function calculate() {
+      window.calculate = function calculate() {
         const totalNuts = {};
         let totalWeight = 0;
         let totalPackages = 0;
@@ -488,9 +414,9 @@
         if (totalPackages > 0) {
           document.getElementById("export-btn").classList.remove("hidden");
         }
-      }
-      // 顯示計算結果
-      function displayResult(
+      };
+
+      window.displayResult = function displayResult(
         totalNuts,
         totalWeight,
         totalPackages,
@@ -521,9 +447,9 @@
             totalCost / totalWeight
           ).toFixed(4)}</p>`;
         }
-      }
-      // 匯出結果為TXT文件
-      function exportToTxt() {
+      };
+
+      window.exportToTxt = function exportToTxt() {
         let output = "";
 
         // 小計部分
@@ -572,16 +498,18 @@
         link.href = URL.createObjectURL(blob);
         link.download = "nuts_calculation.txt";
         link.click();
-      }
+      };
+
       // 顯示彈窗
-      function showNutRatios() {
+      window.showNutRatios = function showNutRatios() {
         document.getElementById("customAlert").style.display = "flex";
-      }
+      };
 
       // 關閉彈窗
-      function closeCustomAlert() {
+      window.closeCustomAlert = function closeCustomAlert() {
         document.getElementById("customAlert").style.display = "none";
-      }
+      };
     </script>
+
   </body>
 </html>
