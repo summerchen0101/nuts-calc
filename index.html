@@ -161,16 +161,26 @@
   </head>
   <body class="p-6">
     <div class="container mx-auto">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-wrap justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">堅果量計算工具</h1>
-        <button
-          id="view-ratio-btn"
-          class="text-white font-bold py-2 px-4 rounded btn-add"
-          onclick="showNutRatios()"
-        >
-          查看比例
-        </button>
+        <div class="flex space-x-4 mt-4 md:mt-0">
+          <button
+            id="view-ratio-btn"
+            class="text-white font-bold py-2 px-4 rounded btn-add"
+            onclick="showNutRatios()"
+          >
+            比例組合
+          </button>
+          <button
+            id="nut-cost-btn"
+            class="text-white font-bold py-2 px-4 rounded btn-add"
+            onclick="showNutCosts()"
+          >
+            堅果成本
+          </button>
+        </div>
       </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label for="package-weight" class="block text-lg font-semibold mb-2"
@@ -271,6 +281,16 @@
         <iframe src="chart.html" class="chart-frame"></iframe>
       </div>
     </div>
+
+
+    <!-- 自定義彈窗，嵌入 cost-chart.html -->
+    <div class="custom-alert-overlay" id="costAlert">
+      <div class="custom-alert">
+        <button class="close-button" onclick="closeCostAlert()">X</button>
+        <iframe src="cost-chart.html" class="chart-frame"></iframe>
+      </div>
+    </div>
+
 
     <!-- 引入外部JavaScript文件 -->
     <script type="module" src="./lib/nuts-data.js"></script>
@@ -509,6 +529,16 @@
       window.closeCustomAlert = function closeCustomAlert() {
         document.getElementById("customAlert").style.display = "none";
       };
+
+      window.showNutCosts = function showNutCosts() {
+        document.getElementById("costAlert").style.display = "flex";
+      };
+
+      window.closeCostAlert = function closeCostAlert() {
+        document.getElementById("costAlert").style.display = "none";
+      };
+
+
     </script>
 
   </body>

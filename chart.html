@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>堅果比例圓餅圖</title>
+  <title>堅果比例</title>
   <!-- 引入Tailwind CSS -->
   <link
     href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
@@ -89,19 +89,7 @@
 
   <!-- 加載外部 JavaScript 文件 -->
   <script type="module">
-    import { nutsData } from './lib/nuts-data.js';
-
-    // 根據莫蘭迪色系進行配色
-    const nutColors = {
-      核桃: '#8E735B', // 深灰褐色
-      杏仁果: '#D3B8AE', // 柔和杏色
-      南瓜籽: '#78866B', // 莫蘭迪綠
-      巴西豆: '#E4D6C1', // 米色
-      胡桃: '#A47463', // 暗紅褐色
-      夏威夷豆: '#EDE3D2', // 淡米色
-      榛果: '#7F5A58', // 深褐色
-      腰果: '#DCC8A4', // 暖米色
-    };
+    import { nutsData, nutColors } from './lib/nuts-data.js';
 
     // 過濾掉數值為 0 的項目，並返回對應的顏色
     function filterZeroData(data) {
