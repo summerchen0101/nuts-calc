@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>堅果比例表格</title>
+  <!-- 引入Tailwind CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    /* 使用莫蘭迪色系 */
+    body {
+      background-color: #edeae0;
+      color: #4d4d4d;
+    }
+
+    .table-container {
+      margin: 0 auto;
+      max-width: 800px;
+      overflow-x: auto;
+      margin-bottom: 40px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #d3cec4;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f0eee9;
+      font-weight: bold;
+    }
+
+    td {
+      background-color: #f8f6f3;
+    }
+
+    /* 颜色类使用 JavaScript 动态添加 */
+    .nut-cell {
+      color: white;
+      font-weight: bold;
+    }
+
+    .combination-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="p-6">
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold text-center mb-6">堅果比例表格</h1>
+
+    <div id="tables-container">
+      <!-- 各組合的表格將由 JavaScript 動態生成 -->
+    </div>
+  </div>
+
+  <!-- 导入 nuts-data.js -->
+  <script type="module">
+    import { nutsData, nutColors } from './lib/nuts-data.js';
+
+    const tablesContainer = document.getElementById('tables-container');
+
+    Object.keys(nutsData).forEach(combination => {
+      const nuts = nutsData[combination];
+      let tableHTML = `
+        <div class="table-container">
+          <div class="combination-title">${combination}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>堅果</th>
+                <th>百分比 (%)</th>
+                <th>重量 (g)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      Object.keys(nuts).forEach(nut => {
+        const percentage = nuts[nut];
+        const weight = (percentage / 100) * 25;
+        const colorStyle = `background-color: ${nutColors[nut]};`;
+        tableHTML += `
+          <tr>
+            <td class="nut-cell" style="${colorStyle}">${nut}</td>
+            <td>${percentage}%</td>
+            <td>${weight.toFixed(2)}g</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      tablesContainer.insertAdjacentHTML('beforeend', tableHTML);
+    });
+  </script>
+</body>
+</html>
