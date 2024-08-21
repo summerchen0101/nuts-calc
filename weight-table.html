@@ -16,6 +16,28 @@
       color: #4d4d4d;
     }
 
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: 1px solid #d3cec4;
+      background-color: #f0eee9;
+      margin-right: 4px;
+      border-radius: 4px 4px 0 0;
+      transition: background-color 0.3s;
+    }
+
+    .tab-active {
+      background-color: #8c7b75;
+      color: white;
+      border-bottom: 2px solid transparent;
+    }
+
     .table-container {
       margin: 0 auto;
       max-width: 800px;
@@ -44,7 +66,6 @@
       background-color: #f8f6f3;
     }
 
-    /* 颜色类使用 JavaScript 动态添加 */
     .nut-cell {
       color: white;
       font-weight: bold;
@@ -62,6 +83,12 @@
   <div class="container mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">堅果比例表格</h1>
 
+    <!-- Tab 选择 -->
+    <div class="tabs">
+      <div class="tab tab-active" id="tab-25g">25g</div>
+      <div class="tab" id="tab-42g">42g</div>
+    </div>
+
     <div id="tables-container">
       <!-- 各組合的表格將由 JavaScript 動態生成 -->
     </div>
@@ -72,44 +99,65 @@
     import { nutsData, nutColors } from './lib/nuts-data.js';
 
     const tablesContainer = document.getElementById('tables-container');
+    let currentWeight = 25;
 
-    Object.keys(nutsData).forEach(combination => {
-      const nuts = nutsData[combination];
-      let tableHTML = `
-        <div class="table-container">
-          <div class="combination-title">${combination}</div>
-          <table>
-            <thead>
-              <tr>
-                <th>堅果</th>
-                <th>百分比 (%)</th>
-                <th>重量 (g)</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+    function generateTables(weight) {
+      tablesContainer.innerHTML = '';
 
-      Object.keys(nuts).forEach(nut => {
-        const percentage = nuts[nut];
-        const weight = (percentage / 100) * 25;
-        const colorStyle = `background-color: ${nutColors[nut]};`;
-        tableHTML += `
-          <tr>
-            <td class="nut-cell" style="${colorStyle}">${nut}</td>
-            <td>${percentage}%</td>
-            <td>${weight.toFixed(2)}g</td>
-          </tr>
+      Object.keys(nutsData).forEach(combination => {
+        const nuts = nutsData[combination];
+        let tableHTML = `
+          <div class="table-container">
+            <div class="combination-title">${combination}</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>堅果</th>
+                  <th>百分比 (%)</th>
+                  <th>重量 (g)</th>
+                </tr>
+              </thead>
+              <tbody>
         `;
+
+        Object.keys(nuts).forEach(nut => {
+          const percentage = nuts[nut];
+          const calculatedWeight = (percentage / 100) * weight;
+          const colorStyle = `background-color: ${nutColors[nut]};`;
+          tableHTML += `
+            <tr>
+              <td class="nut-cell" style="${colorStyle}">${nut}</td>
+              <td>${percentage}%</td>
+              <td>${calculatedWeight.toFixed(2)}g</td>
+            </tr>
+          `;
+        });
+
+        tableHTML += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        tablesContainer.insertAdjacentHTML('beforeend', tableHTML);
       });
+    }
 
-      tableHTML += `
-            </tbody>
-          </table>
-        </div>
-      `;
+    function switchWeight(weight) {
+      currentWeight = weight;
+      generateTables(weight);
 
-      tablesContainer.insertAdjacentHTML('beforeend', tableHTML);
-    });
+      // 更新 Tab 样式
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('tab-active'));
+      document.getElementById(`tab-${weight}g`).classList.add('tab-active');
+    }
+
+    // 添加事件监听器到 Tab
+    document.getElementById('tab-25g').addEventListener('click', () => switchWeight(25));
+    document.getElementById('tab-42g').addEventListener('click', () => switchWeight(42));
+
+    // 初始化时加载25g的表格
+    generateTables(currentWeight);
   </script>
 </body>
 </html>
