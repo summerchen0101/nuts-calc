@@ -385,12 +385,19 @@
         let totalWeight = 0;
         let totalPackages = 0;
         let totalCost = 0;
+        let packageDetails = {};
         let showCost = document.getElementById("show-cost").checked;
 
         cart.forEach((item) => {
           const nutPercentages = nutsData[item.combination];
           totalPackages += item.packageCount;
           totalWeight += item.weightPerPackage * item.packageCount;
+
+          // 记录每种重量的包数
+          if (!packageDetails[item.weightPerPackage]) {
+            packageDetails[item.weightPerPackage] = 0;
+          }
+          packageDetails[item.weightPerPackage] += item.packageCount;
 
           for (const nut in nutPercentages) {
             const percentage = nutPercentages[nut] / 100;
@@ -417,13 +424,16 @@
           totalWeight,
           totalPackages,
           totalCost,
+          packageDetails,
           showCost,
         };
+
         displayResult(
           totalNuts,
           totalWeight,
           totalPackages,
           totalCost,
+          packageDetails,
           showCost
         );
 
@@ -438,6 +448,7 @@
         totalWeight,
         totalPackages,
         totalCost,
+        packageDetails,
         showCost
       ) {
         const resultDiv = document.getElementById("result");
@@ -450,10 +461,13 @@
         }
         resultDiv.innerHTML += "</ul>";
 
-        resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages}</p>`;
-        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
-          2
-        )} 公斤</p>`;
+        // 生成总包数的详细信息
+        let packageDetailsText = Object.keys(packageDetails)
+          .map((weight) => `${weight}g x ${packageDetails[weight]}包`)
+          .join(", ");
+
+        resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
 
         if (showCost) {
           resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
@@ -473,17 +487,30 @@
         output += "小計:\n";
         cart.forEach((item) => {
           let line = `${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包`;
+
+          // 加入成份比例
+          const nutPercentages = nutsData[item.combination];
+          let nutDetails = "成份：";
+          for (const nut in nutPercentages) {
+            nutDetails += `${nut}${nutPercentages[nut]}%、`;
+          }
+          nutDetails = nutDetails.slice(0, -1); // 去掉最后的逗号
+          line += `\n${nutDetails}`; // 第二行显示成份比例
+
+          // 如果显示成本
           if (document.getElementById("show-cost").checked) {
             const cost = calculateCost(
               item.combination,
               item.weightPerPackage,
               item.packageCount
             );
-            line += ` | 每包成本: $${cost.perPackage.toFixed(
+            const costInfo = `每包成本: $${cost.perPackage.toFixed(
               2
             )}, 每克成本: $${cost.perGram.toFixed(2)}`;
+            line += `\n${costInfo}`; // 第三行显示成本信息
           }
-          output += line + "\n";
+
+          output += line + "\n"; // 加入输出
         });
 
         output += "\n總計:\n";
@@ -494,10 +521,13 @@
           ).toFixed(2)} 公斤)\n`;
         }
 
-        output += `\n總包數: ${lastResult.totalPackages}\n`;
-        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
-          2
-        )} 公斤\n`;
+        // 生成总包数的详细信息
+        let packageDetailsText = Object.keys(lastResult.packageDetails)
+          .map((weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`)
+          .join(", ");
+
+        output += `\n總包數: ${lastResult.totalPackages} (${packageDetailsText})\n`;
+        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(2)} 公斤\n`;
 
         if (lastResult.showCost) {
           output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
@@ -534,6 +564,49 @@
       window.closeCostAlert = function closeCostAlert() {
         document.getElementById("costAlert").style.display = "none";
       };
+
+
+      window.updateCart = function updateCart() {
+        const cartList = document.getElementById("cart-list");
+        const showCost = document.getElementById("show-cost").checked;
+        cartList.innerHTML = "";
+        cart.forEach((item, index) => {
+          const nutPercentages = nutsData[item.combination];
+          let nutDetails = "成份：";
+
+          // 拼接坚果比例信息
+          for (const nut in nutPercentages) {
+            nutDetails += `${nut}${nutPercentages[nut]}%、`;
+          }
+
+          // 移除最后一个逗号
+          nutDetails = nutDetails.slice(0, -1);
+
+          const listItem = document.createElement("li");
+          listItem.innerHTML = `
+            <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
+            <div class="cost-info">${nutDetails}</div>
+            <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
+          `;
+
+          if (showCost) {
+            const cost = calculateCost(
+              item.combination,
+              item.weightPerPackage,
+              item.packageCount
+            );
+            const costInfo = document.createElement("div");
+            costInfo.classList.add("cost-info");
+            costInfo.textContent = `每包成本: $${cost.perPackage.toFixed(
+              2
+            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
+            listItem.appendChild(costInfo);
+          }
+
+          cartList.appendChild(listItem);
+        });
+      };
+
 
 
     </script>
