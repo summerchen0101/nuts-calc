@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>堅果KG成本計算</title>
+    <!-- 引入Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #edeae0;
+        color: #4d4d4d;
+      }
+
+      /* 表格樣式調整 */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px 8px;
+        border: 1px solid #d3cec4;
+        text-align: center;
+        white-space: nowrap; /* 保持單元格內容不換行 */
+      }
+
+      th {
+        background-color: #f0eee9;
+        color: #4d4d4d;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f7f6f3;
+      }
+
+      /* 調整輸入框的寬度以適應小屏幕 */
+      input[type="number"] {
+        width: 70px;
+        padding: 8px;
+        border: 1px solid #d3cec4;
+        border-radius: 5px;
+        background-color: #f0eee9;
+      }
+
+      .btn {
+        padding: 10px 20px;
+        background-color: #a16e5a;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .btn:hover {
+        background-color: #8c5b4a;
+      }
+
+      .total-row {
+        font-weight: bold;
+        background-color: #e0dcd7;
+        width: 100%;
+      }
+
+      .batch-input {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap; /* 允許內容在小屏幕上換行 */
+      }
+
+      .batch-input input[type="number"] {
+        margin-left: 10px;
+        width: 100px;
+        padding: 8px;
+        border: 1px solid #d3cec4;
+        border-radius: 5px;
+        background-color: #f0eee9;
+      }
+
+      /* 響應式設計調整 */
+      @media (max-width: 640px) {
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+          display: block; /* 使表格變為區塊元素，適應小屏幕 */
+        }
+
+        thead tr {
+          position: absolute;
+          top: -9999px;
+          left: -9999px;
+        }
+
+        tr {
+          border: 1px solid #d3cec4;
+          margin-bottom: 10px;
+          padding: 10px;
+          border-radius: 5px;
+          background-color: #f7f6f3;
+        }
+
+        td {
+          border: none;
+          position: relative;
+          padding-left: 50%;
+          text-align: left;
+        }
+
+        td:before {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          width: 45%;
+          padding-right: 10px;
+          white-space: nowrap;
+          content: attr(data-label);
+          font-weight: bold;
+          text-align: left;
+        }
+
+        .btn {
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        .batch-input {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .batch-input input[type="number"] {
+          width: 100%;
+          margin: 10px 0;
+        }
+      }
+
+      /* 針對tfoot部分的調整 */
+      tfoot {
+        width: 100%;
+      }
+
+      tfoot td {
+        text-align: right; /* 使金額靠右對齊 */
+        padding: 12px 15px;
+      }
+
+      @media (max-width: 640px) {
+        tfoot {
+          display: block; /* 使tfoot變成區塊元素 */
+          width: 100%;
+        }
+
+        tfoot tr {
+          display: flex; /* 使用flexbox以使內容橫向排列 */
+          justify-content: space-between;
+          padding: 10px;
+          background-color: #e0dcd7; /* 保持莫蘭迪色 */
+          border-radius: 5px;
+        }
+
+        tfoot td {
+          text-align: left;
+          width: 100%; /* 確保內容在小螢幕下全寬顯示 */
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        tfoot td:first-child {
+          justify-content: flex-start;
+        }
+
+        tfoot td:last-child {
+          justify-content: flex-end;
+        }
+      }
+    </style>
+  </head>
+  <body class="p-6">
+    <div class="container mx-auto">
+      <div class="mb-2">
+        <a href="/index.html" class="">← BACK</a>
+      </div>
+      <h1 class="text-3xl font-bold mb-6">堅果KG成本計算</h1>
+
+      <div class="batch-input">
+        <label for="batch-quantity" class="text-lg font-semibold"
+          >批次輸入KG數量:</label
+        >
+        <input type="number" id="batch-quantity" placeholder="輸入數量" />
+        <button class="btn sm:ml-4" onclick="applyBatchQuantity()">套用</button>
+      </div>
+
+      <table id="nuts-table">
+        <thead>
+          <tr>
+            <th>品項</th>
+            <th>單價(KG)</th>
+            <th>數量(KG)</th>
+            <th>價格</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 堅果列表將由JavaScript生成 -->
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="3">總計</td>
+            <td id="total-cost">$0</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <script type="module">
+      import { nutsData, nutPrices } from "./lib/nuts-data.js";
+
+      const nuts = Object.keys(nutPrices); // 從nutPrices獲取所有堅果名稱
+      const tableBody = document.querySelector("#nuts-table tbody");
+      const totalCostElement = document.getElementById("total-cost");
+
+      // 格式化金額為 0,0
+      function formatCurrency(amount) {
+        return amount.toLocaleString("en-US", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        });
+      }
+
+      // 初始化表格
+      function initTable() {
+        nuts.forEach((nut) => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+                    <td data-label="品項">${nut}</td>
+                    <td data-label="單價(KG)">$${formatCurrency(
+                      nutPrices[nut]
+                    )}</td>
+                    <td data-label="數量(KG)"><input type="number" min="0" value="0" onchange="updatePrice(this, '${nut}')"></td>
+                    <td data-label="價格" class="price">$0</td>
+                `;
+
+          tableBody.appendChild(row);
+        });
+      }
+
+      // 更新每行的價格
+      window.updatePrice = function (inputElement, nut) {
+        const quantity = parseFloat(inputElement.value) || 0;
+        const pricePerKg = nutPrices[nut];
+        const price = quantity * pricePerKg;
+
+        const priceCell = inputElement.parentElement.nextElementSibling;
+        priceCell.textContent = `$${formatCurrency(price)}`;
+
+        updateTotalCost();
+      };
+
+      // 更新總價
+      function updateTotalCost() {
+        let totalCost = 0;
+
+        document.querySelectorAll("#nuts-table tbody tr").forEach((row) => {
+          const price = parseInt(
+            row
+              .querySelector(".price")
+              .textContent.replace("$", "")
+              .replace(/,/g, "")
+          );
+          totalCost += price;
+        });
+
+        totalCostElement.textContent = `$${formatCurrency(totalCost)}`;
+      }
+
+      // 批次輸入KG數量
+      window.applyBatchQuantity = function () {
+        const batchQuantity =
+          parseFloat(document.getElementById("batch-quantity").value) || 0;
+
+        document.querySelectorAll("#nuts-table tbody tr").forEach((row) => {
+          const input = row.querySelector("input[type='number']");
+          input.value = batchQuantity;
+          const nut = row.querySelector("td").textContent;
+          updatePrice(input, nut);
+        });
+      };
+
+      // 初始化表格
+      initTable();
+    </script>
+  </body>
+</html>
