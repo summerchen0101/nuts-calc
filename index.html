@@ -241,7 +241,6 @@
               加入小計
             </button>
           </div>
-
         </div>
 
         <div class="subtotal-container p-4">
@@ -287,7 +286,6 @@
         <iframe src="cost-chart.html" class="chart-frame"></iframe>
       </div>
     </div>
-
 
     <!-- 引入外部JavaScript文件 -->
     <script type="module" src="./lib/nuts-data.js"></script>
@@ -348,7 +346,11 @@
         });
       };
 
-      window.calculateCost = function calculateCost(combination, weightPerPackage, packageCount) {
+      window.calculateCost = function calculateCost(
+        combination,
+        weightPerPackage,
+        packageCount
+      ) {
         const nutPercentages = nutsData[combination];
         let totalCost = 0;
 
@@ -454,10 +456,12 @@
         const resultDiv = document.getElementById("result");
         resultDiv.innerHTML = '<ul class="list-disc list-inside">';
         for (const nut in totalNuts) {
-          const totalWeightGrams = Math.round(totalNuts[nut]);
-          resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(
-            totalWeightGrams / 1000
-          ).toFixed(2)} 公斤)</li>`;
+          if (totalNuts[nut] > 0) {
+            const totalWeightGrams = Math.round(totalNuts[nut]);
+            resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(
+              totalWeightGrams / 1000
+            ).toFixed(2)} 公斤)</li>`;
+          }
         }
         resultDiv.innerHTML += "</ul>";
 
@@ -467,7 +471,9 @@
           .join(", ");
 
         resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
-        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
+          2
+        )} 公斤</p>`;
 
         if (showCost) {
           resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
@@ -488,11 +494,13 @@
         cart.forEach((item) => {
           let line = `${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包`;
 
-          // 加入成份比例
+          // 加入成份比例，过滤 0%
           const nutPercentages = nutsData[item.combination];
           let nutDetails = "成份：";
           for (const nut in nutPercentages) {
-            nutDetails += `${nut}${nutPercentages[nut]}%、`;
+            if (nutPercentages[nut] > 0) {
+              nutDetails += `${nut}${nutPercentages[nut]}%、`;
+            }
           }
           nutDetails = nutDetails.slice(0, -1); // 去掉最后的逗号
           line += `\n${nutDetails}`; // 第二行显示成份比例
@@ -515,19 +523,25 @@
 
         output += "\n總計:\n";
         for (const nut in lastResult.totalNuts) {
-          const totalWeightGrams = Math.round(lastResult.totalNuts[nut]);
-          output += `${nut}: ${totalWeightGrams} 克 (${(
-            totalWeightGrams / 1000
-          ).toFixed(2)} 公斤)\n`;
+          if (lastResult.totalNuts[nut] > 0) {
+            const totalWeightGrams = Math.round(lastResult.totalNuts[nut]);
+            output += `${nut}: ${totalWeightGrams} 克 (${(
+              totalWeightGrams / 1000
+            ).toFixed(2)} 公斤)\n`;
+          }
         }
 
         // 生成总包数的详细信息
         let packageDetailsText = Object.keys(lastResult.packageDetails)
-          .map((weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`)
+          .map(
+            (weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`
+          )
           .join(", ");
 
         output += `\n總包數: ${lastResult.totalPackages} (${packageDetailsText})\n`;
-        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(2)} 公斤\n`;
+        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
+          2
+        )} 公斤\n`;
 
         if (lastResult.showCost) {
           output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
@@ -565,7 +579,6 @@
         document.getElementById("costAlert").style.display = "none";
       };
 
-
       window.updateCart = function updateCart() {
         const cartList = document.getElementById("cart-list");
         const showCost = document.getElementById("show-cost").checked;
@@ -574,13 +587,14 @@
           const nutPercentages = nutsData[item.combination];
           let nutDetails = "成份：";
 
-          // 拼接坚果比例信息
+          // 过滤掉 0% 的坚果
           for (const nut in nutPercentages) {
-            nutDetails += `${nut}${nutPercentages[nut]}%、`;
+            if (nutPercentages[nut] > 0) {
+              nutDetails += `${nut}${nutPercentages[nut]}%、`;
+            }
           }
 
-          // 移除最后一个逗号
-          nutDetails = nutDetails.slice(0, -1);
+          nutDetails = nutDetails.slice(0, -1); // 去掉最后的逗号
 
           const listItem = document.createElement("li");
           listItem.innerHTML = `
@@ -606,10 +620,6 @@
           cartList.appendChild(listItem);
         });
       };
-
-
-
     </script>
-
   </body>
 </html>
