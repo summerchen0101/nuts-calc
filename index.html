@@ -157,6 +157,34 @@
         border-radius: 10px;
         overflow: hidden;
       }
+
+      /* 自定義 Radio 按鈕樣式 */
+      .custom-radio-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 2px solid #d3cec4; /* 淺灰色邊框 */
+        background-color: #f0eee9; /* 莫蘭迪底色 */
+        color: #4d4d4d; /* 文字顏色 */
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+      }
+
+      .custom-radio-label:hover {
+        background-color: #d3cec4; /* 滑過時變深 */
+      }
+
+      .custom-radio:checked + .custom-radio-label {
+        background-color: #a16e5a; /* 選中後背景變為莫蘭迪褐色 */
+        border-color: #a16e5a; /* 邊框顏色匹配背景 */
+        color: #fff; /* 文字變白色 */
+      }
+
+      /* 隱藏原生 Radio 按鈕 */
+      .custom-radio {
+        display: none;
+      }
     </style>
   </head>
   <body class="p-6">
@@ -189,15 +217,28 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label for="package-weight" class="block text-lg font-semibold mb-2"
-            >每包克數:</label
-          >
-          <input
-            type="number"
-            id="package-weight"
-            class="w-full border rounded p-2 mb-4"
-            value="42"
-          />
+          <label for="package-weight" class="block text-lg font-semibold mb-2">
+            每包克數:
+          </label>
+          <div class="mb-4 flex items-center">
+            <input
+              type="radio"
+              id="weight-25"
+              name="package-weight"
+              value="25"
+              class="hidden custom-radio"
+              checked
+            />
+            <label for="weight-25" class="mr-4 custom-radio-label">25 克</label>
+            <input
+              type="radio"
+              id="weight-42"
+              name="package-weight"
+              value="42"
+              class="hidden custom-radio"
+            />
+            <label for="weight-42" class="custom-radio-label">42 克</label>
+          </div>
 
           <label for="package-count" class="block text-lg font-semibold mb-2"
             >生產包數:</label
@@ -306,7 +347,7 @@
       // 將函數掛載到 window 對象上
       window.addToCart = function addToCart() {
         const weightPerPackage = parseFloat(
-          document.getElementById("package-weight").value
+          document.querySelector('input[name="package-weight"]:checked').value
         );
         const packageCount = parseInt(
           document.getElementById("package-count").value
