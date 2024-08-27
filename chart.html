@@ -43,15 +43,15 @@
     <h1 class="text-3xl font-bold text-center mb-6">堅果比例圓餅圖</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- 活腦組合 -->
+      <!-- 元氣組合 -->
       <div class="chart-container">
-        <div class="chart-title">活腦組合</div>
+        <div class="chart-title">元氣組合</div>
         <canvas id="brainBoosterChart"></canvas>
       </div>
 
-      <!-- 美肌組合 -->
+      <!-- 美妍組合 -->
       <div class="chart-container">
-        <div class="chart-title">美肌組合</div>
+        <div class="chart-title">美妍組合</div>
         <canvas id="beautySkinChart"></canvas>
       </div>
 
@@ -139,8 +139,8 @@
     }
 
     // 創建各組合的圖表
-    createChart(document.getElementById('brainBoosterChart').getContext('2d'), nutsData['活腦組合']);
-    createChart(document.getElementById('beautySkinChart').getContext('2d'), nutsData['美肌組合']);
+    createChart(document.getElementById('brainBoosterChart').getContext('2d'), nutsData['元氣組合']);
+    createChart(document.getElementById('beautySkinChart').getContext('2d'), nutsData['美妍組合']);
     createChart(document.getElementById('fitnessChart').getContext('2d'), nutsData['健身組合']);
     createChart(document.getElementById('mapleCinnamonChart').getContext('2d'), nutsData['楓糖肉桂']);
     createChart(document.getElementById('spicyChocolateChart').getContext('2d'), nutsData['辣味巧克力']);
