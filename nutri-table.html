@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>堅果營養價值表</title>
+    <!-- 引入Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #edeae0;
+        color: #4d4d4d;
+      }
+
+      .tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: 1px solid #d3cec4;
+        background-color: #f0eee9;
+        margin-right: 4px;
+        border-radius: 4px 4px 0 0;
+        transition: background-color 0.3s;
+      }
+
+      .tab-active {
+        background-color: #8c7b75;
+        color: white;
+        border-bottom: 2px solid transparent;
+      }
+
+      .table-container {
+        margin: 0 auto;
+        max-width: 800px;
+        overflow-x: auto;
+        margin-bottom: 40px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border: 1px solid #d3cec4;
+        text-align: center;
+      }
+
+      th {
+        background-color: #f0eee9;
+        font-weight: bold;
+      }
+
+      td {
+        background-color: #f8f6f3;
+      }
+
+      .nut-cell {
+        color: white;
+        font-weight: bold;
+      }
+
+      .combination-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body class="p-6">
+    <div class="container mx-auto">
+      <div class="mb-2">
+        <a href="/index.html" class="">← BACK</a>
+      </div>
+      <h1 class="text-3xl font-bold text-center mb-6">堅果營養價值表</h1>
+
+      <!-- Tab 選擇 -->
+      <div class="tabs">
+        <div class="tab tab-active" id="tab-25g">25g</div>
+        <div class="tab" id="tab-42g">42g</div>
+      </div>
+
+      <div id="tables-container">
+        <!-- 表格由 JavaScript 動態生成 -->
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module">
+      import { nutsData, nutColors, nutritionData } from "./lib/nuts-data.js";
+
+      const tablesContainer = document.getElementById("tables-container");
+      let currentWeight = 25;
+
+      function generateTables(weight) {
+        tablesContainer.innerHTML = "";
+
+        Object.keys(nutsData).forEach((combination) => {
+          const nuts = nutsData[combination];
+          let tableHTML = `
+      <div class="table-container">
+        <div class="combination-title">${combination}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>堅果</th>
+              <th>百分比 (%)</th>
+              <th>重量 (g)</th>
+              <th>熱量 (kcal)</th>
+              <th>蛋白質 (g)</th>
+              <th>脂肪 (g)</th>
+              <th>碳水 (g)</th>
+              <th>糖 (g)</th>
+              <th>膳食纖維 (g)</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+          Object.keys(nuts).forEach((nut) => {
+            const percentage = nuts[nut];
+            const calculatedWeight = (percentage / 100) * weight;
+            const colorStyle = `background-color: ${nutColors[nut]};`;
+
+            // Check if nutritional data exists for this nut
+            if (nutritionData[nut]) {
+              const nutrition = nutritionData[nut];
+              const calories = (
+                nutrition.熱量 *
+                (calculatedWeight / 100)
+              ).toFixed(2);
+              const protein = (
+                nutrition.蛋白質 *
+                (calculatedWeight / 100)
+              ).toFixed(2);
+              const fat = (nutrition.脂肪 * (calculatedWeight / 100)).toFixed(
+                2
+              );
+              const carbs = (nutrition.碳水 * (calculatedWeight / 100)).toFixed(
+                2
+              );
+              const sugar = (nutrition.糖 * (calculatedWeight / 100)).toFixed(
+                2
+              );
+              const fiber = (
+                nutrition.膳食纖維 *
+                (calculatedWeight / 100)
+              ).toFixed(2);
+
+              tableHTML += `
+          <tr>
+            <td class="nut-cell" style="${colorStyle}">${nut}</td>
+            <td>${percentage}%</td>
+            <td>${calculatedWeight.toFixed(2)}g</td>
+            <td>${calories}</td>
+            <td>${protein}</td>
+            <td>${fat}</td>
+            <td>${carbs}</td>
+            <td>${sugar}</td>
+            <td>${fiber}</td>
+          </tr>
+        `;
+            } else {
+              // If no nutrition data is available, provide placeholders or leave it blank
+              tableHTML += `
+          <tr>
+            <td class="nut-cell" style="${colorStyle}">${nut}</td>
+            <td>${percentage}%</td>
+            <td>${calculatedWeight.toFixed(2)}g</td>
+            <td colspan="6">No data available</td>
+          </tr>
+        `;
+            }
+          });
+
+          tableHTML += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+          tablesContainer.insertAdjacentHTML("beforeend", tableHTML);
+        });
+      }
+
+      function switchWeight(weight) {
+        currentWeight = weight;
+        generateTables(weight);
+
+        // 更新 Tab 樣式
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("tab-active"));
+        document.getElementById(`tab-${weight}g`).classList.add("tab-active");
+      }
+
+      // 添加事件监听器到 Tab
+      document
+        .getElementById("tab-25g")
+        .addEventListener("click", () => switchWeight(25));
+      document
+        .getElementById("tab-42g")
+        .addEventListener("click", () => switchWeight(42));
+
+      // 初始化时加载25g的表格
+      generateTables(currentWeight);
+    </script>
+  </body>
+</html>
