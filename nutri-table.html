@@ -154,6 +154,9 @@
         .total-row td:nth-of-type(11):before {
           content: "膳食纖維 (g)";
         }
+        .total-row td:nth-of-type(12):before {
+          content: "鈉 (mg)";
+        }
       }
     </style>
   </head>
@@ -203,6 +206,7 @@
           let totalCarbs = 0;
           let totalSugar = 0;
           let totalFiber = 0;
+          let totalSodium = 0; // 新增鈉的總量
           let totalWeight = 0;
           let totalPercentage = 0;
 
@@ -223,6 +227,7 @@
               <th>碳水 (g)</th>
               <th>糖 (g)</th>
               <th>膳食纖維 (g)</th>
+              <th>鈉 (mg)</th> <!-- 新增鈉 -->
             </tr>
           </thead>
           <tbody>
@@ -265,6 +270,9 @@
                 nutrition.膳食纖維 *
                 (calculatedWeight / 100)
               ).toFixed(2);
+              const sodium = (
+                nutrition.鈉 * (calculatedWeight / 100)
+              ).toFixed(2); // 計算鈉含量
 
               // 將值累加到總計變量
               totalCalories += parseFloat(calories);
@@ -275,6 +283,7 @@
               totalCarbs += parseFloat(carbs);
               totalSugar += parseFloat(sugar);
               totalFiber += parseFloat(fiber);
+              totalSodium += parseFloat(sodium); // 累加鈉含量
               totalWeight += calculatedWeight;
               totalPercentage += percentage;
 
@@ -291,6 +300,7 @@
             <td>${carbs}</td>
             <td>${sugar}</td>
             <td>${fiber}</td>
+            <td>${sodium}</td> <!-- 顯示鈉 -->
           </tr>
         `;
             }
@@ -310,6 +320,7 @@
         <td>${totalCarbs.toFixed(2)}</td>
         <td>${totalSugar.toFixed(2)}</td>
         <td>${totalFiber.toFixed(2)}</td>
+        <td>${totalSodium.toFixed(2)}</td> <!-- 顯示鈉總計 -->
       </tr>
     `;
 
