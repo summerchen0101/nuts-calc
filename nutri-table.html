@@ -162,7 +162,7 @@
   </head>
   <body class="p-6">
     <div class="container mx-auto">
-      <div class="mb-2">
+      <div class="mb-2" id="back-btn">
         <a href="/index.html">← BACK</a>
       </div>
       <h1 class="text-3xl font-bold text-center mb-6">堅果營養價值表</h1>
@@ -185,6 +185,7 @@
       </div>
     </div>
 
+    <script src="./lib/auth.js"></script>
     <script type="module">
       import { nutsData, nutColors, nutritionData } from "./lib/nuts-data.js";
 
@@ -403,6 +404,22 @@
         // 觸發 Excel 文件下載
         XLSX.writeFile(workbook, "堅果營養價值表.xlsx");
       });
+    </script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const authParam = urlParams.get("auth");
+
+      if(authParam) {
+        localStorage.setItem("auth", authParam);
+      }
+
+      const authValue = localStorage.getItem("auth");
+
+      if (authValue === "1") {
+        document.getElementById("back-btn").style.display = "block";
+      } else {
+        document.getElementById("back-btn").style.display = "none";
+      }
     </script>
   </body>
 </html>

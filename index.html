@@ -191,7 +191,9 @@
     <div class="container mx-auto">
       <div class="flex flex-wrap justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">堅果量計算工具</h1>
-        <div class="grid grid-cols-2 sm:flex gap-4 mt-4 md:mt-0 w-full sm:w-auto">
+        <div
+          class="grid grid-cols-2 sm:flex gap-4 mt-4 md:mt-0 w-full sm:w-auto"
+        >
           <button
             id="view-ratio-btn"
             class="text-white font-bold py-2 px-4 rounded btn-add"
@@ -275,7 +277,7 @@
             <option value="海鹽迷迭香">海鹽迷迭香</option>
           </select>
 
-          <label class="block text-lg font-semibold mb-4">
+          <label id="show-cost-label" class="block text-lg font-semibold mb-4">
             <input type="checkbox" id="show-cost" onchange="updateCart()" />
             顯示成本
           </label>
@@ -673,6 +675,22 @@
           cartList.appendChild(listItem);
         });
       };
+    </script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const authParam = urlParams.get("auth");
+
+      if(authParam) {
+        localStorage.setItem("auth", authParam);
+      }
+
+      const authValue = localStorage.getItem("auth");
+
+      if (authValue === "1") {
+        document.getElementById("show-cost-label").style.display = "block";
+      } else {
+        document.getElementById("show-cost-label").style.display = "none";
+      }
     </script>
   </body>
 </html>
