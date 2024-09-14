@@ -54,23 +54,7 @@
         margin-bottom: 10px;
       }
 
-      /* 返回按鈕樣式 */
-      .back-link {
-        display: inline-block;
-        margin-bottom: 20px;
-        color: #4d4d4d;
-        text-decoration: none;
-        border: 1px solid #d3cec4;
-        padding: 8px 16px;
-        border-radius: 4px;
-        background-color: #f0eee9;
-        transition: background-color 0.3s;
-      }
 
-      .back-link:hover {
-        background-color: #8c7b75;
-        color: white;
-      }
       a.download-link {
         color: #b74a25;
         text-decoration: none;
@@ -82,7 +66,9 @@
   </head>
   <body class="p-6">
     <div class="container mx-auto">
-      <a href="/index.html" class="back-link">← BACK</a>
+      <div class="mb-2" id="back-btn">
+        <a href="/index.html">← BACK</a>
+      </div>
       <h1 class="text-3xl font-bold text-center mb-6">品牌相關資料</h1>
 
       <div id="tables-container">
@@ -132,6 +118,22 @@
       }
 
       generateTable();
+    </script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const authParam = urlParams.get("auth");
+
+      if(authParam) {
+        localStorage.setItem("auth", authParam);
+      }
+
+      const authValue = localStorage.getItem("auth");
+
+      if (authValue === "1") {
+        document.getElementById("back-btn").style.display = "block";
+      } else {
+        document.getElementById("back-btn").style.display = "none";
+      }
     </script>
   </body>
 </html>
