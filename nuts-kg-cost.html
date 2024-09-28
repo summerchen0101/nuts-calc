@@ -222,9 +222,9 @@
     </div>
 
     <script type="module">
-      import { nutsData, nutPrices } from "./lib/nuts-data.js";
+      import { nutsData, totalPrices } from "./lib/nuts-data.js";
 
-      const nuts = Object.keys(nutPrices); // 從nutPrices獲取所有堅果名稱
+      const nuts = Object.keys(totalPrices); // 從nutPrices獲取所有堅果名稱
       const tableBody = document.querySelector("#nuts-table tbody");
       const totalCostElement = document.getElementById("total-cost");
 
@@ -244,7 +244,7 @@
           row.innerHTML = `
                     <td data-label="品項">${nut}</td>
                     <td data-label="單價(KG)">$${formatCurrency(
-                      nutPrices[nut]
+                      totalPrices[nut]
                     )}</td>
                     <td data-label="數量(KG)"><input type="number" min="0" value="0" onchange="updatePrice(this, '${nut}')"></td>
                     <td data-label="價格" class="price">$0</td>
@@ -257,7 +257,7 @@
       // 更新每行的價格
       window.updatePrice = function (inputElement, nut) {
         const quantity = parseFloat(inputElement.value) || 0;
-        const pricePerKg = nutPrices[nut];
+        const pricePerKg = totalPrices[nut];
         const price = quantity * pricePerKg;
 
         const priceCell = inputElement.parentElement.nextElementSibling;

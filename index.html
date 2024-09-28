@@ -353,7 +353,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script type="module">
-      import { nutsData, nutPrices } from "./lib/nuts-data.js";
+      import { nutsData, totalPrices} from "./lib/nuts-data.js";
 
       // 初始化拖曳功能
       $(function () {
@@ -418,7 +418,7 @@
         for (const nut in nutPercentages) {
           const percentage = nutPercentages[nut] / 100;
           const nutWeight = percentage * weightPerPackage;
-          const nutCostPerGram = nutPrices[nut] / 1000;
+          const nutCostPerGram = totalPrices[nut] / 1000;
           totalCost += nutWeight * nutCostPerGram;
         }
 

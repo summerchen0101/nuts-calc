@@ -126,7 +126,7 @@
         Object.keys(nuts).forEach(nut => {
           const percentage = nuts[nut];
           const calculatedWeight = (percentage / 100) * weight;
-          const colorStyle = `background-color: ${nutColors[nut]};`;
+          const colorStyle = `background-color: ${nutColors[nut] || '#777'};`;
           tableHTML += `
             <tr>
               <td class="nut-cell" style="${colorStyle}">${nut}</td>
