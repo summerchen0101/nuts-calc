@@ -23,6 +23,7 @@
     .chart-container {
       max-width: 500px;
       margin: 0 auto;
+      margin-bottom: 20px; /* 增加間隔 */
     }
 
     .chart-title {
@@ -40,51 +41,11 @@
 </head>
 <body class="p-6">
   <div class="container mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-6">堅果比例圓餅圖</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- 元氣組合 -->
-      <div class="chart-container">
-        <div class="chart-title">元氣組合</div>
-        <canvas id="brainBoosterChart"></canvas>
-      </div>
-
-      <!-- 美妍組合 -->
-      <div class="chart-container">
-        <div class="chart-title">美妍組合</div>
-        <canvas id="beautySkinChart"></canvas>
-      </div>
-
-      <!-- 健身組合 -->
-      <div class="chart-container">
-        <div class="chart-title">健身組合</div>
-        <canvas id="fitnessChart"></canvas>
-      </div>
-
-      <!-- 楓糖肉桂 -->
-      <div class="chart-container">
-        <div class="chart-title">楓糖肉桂</div>
-        <canvas id="mapleCinnamonChart"></canvas>
-      </div>
-
-      <!-- 辣味巧克力 -->
-      <div class="chart-container">
-        <div class="chart-title">辣味巧克力</div>
-        <canvas id="spicyChocolateChart"></canvas>
-      </div>
-
-      <!-- 椰蓉咖哩 -->
-      <div class="chart-container">
-        <div class="chart-title">椰蓉咖哩</div>
-        <canvas id="coconutCurryChart"></canvas>
-      </div>
-
-      <!-- 海鹽迷迭香 -->
-      <div class="chart-container">
-        <div class="chart-title">海鹽迷迭香</div>
-        <canvas id="seaSaltRosemaryChart"></canvas>
-      </div>
+    <div class="mb-2">
+      <a href="/index.html" class="">← BACK</a>
     </div>
+    <h1 class="text-3xl font-bold text-center mb-6">原料佔比</h1>
+    <div id="charts-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div> <!-- 動態圖表容器 -->
   </div>
 
   <!-- 加載外部 JavaScript 文件 -->
@@ -138,14 +99,37 @@
       });
     }
 
-    // 創建各組合的圖表
-    createChart(document.getElementById('brainBoosterChart').getContext('2d'), nutsData['元氣組合']);
-    createChart(document.getElementById('beautySkinChart').getContext('2d'), nutsData['美妍組合']);
-    createChart(document.getElementById('fitnessChart').getContext('2d'), nutsData['健身組合']);
-    createChart(document.getElementById('mapleCinnamonChart').getContext('2d'), nutsData['楓糖肉桂']);
-    createChart(document.getElementById('spicyChocolateChart').getContext('2d'), nutsData['辣味巧克力']);
-    createChart(document.getElementById('coconutCurryChart').getContext('2d'), nutsData['椰蓉咖哩']);
-    createChart(document.getElementById('seaSaltRosemaryChart').getContext('2d'), nutsData['海鹽迷迭香']);
+    // 動態創建圖表元素並生成圖表
+    function generateCharts() {
+      const container = document.getElementById('charts-container');
+      container.innerHTML = ''; // 清空容器
+
+      // 遍歷 nutsData 的 key，動態創建對應的圖表
+      Object.keys(nutsData).forEach((key) => {
+        const chartContainer = document.createElement('div');
+        chartContainer.className = 'chart-container';
+
+        // 創建標題
+        const chartTitle = document.createElement('div');
+        chartTitle.className = 'chart-title';
+        chartTitle.textContent = key;
+        chartContainer.appendChild(chartTitle);
+
+        // 創建 canvas 元素
+        const canvas = document.createElement('canvas');
+        canvas.id = `${key.replace(/\s+/g, '')}Chart`; // 生成唯一 ID
+        chartContainer.appendChild(canvas);
+
+        container.appendChild(chartContainer);
+
+        // 為當前組合創建圖表
+        const ctx = canvas.getContext('2d');
+        createChart(ctx, nutsData[key]);
+      });
+    }
+
+    // 初始化生成所有圖表
+    generateCharts();
   </script>
 </body>
 </html>

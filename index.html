@@ -209,6 +209,12 @@
             價格比較
           </button>
           <a
+            href="chart.html"
+            class="text-white font-bold py-2 px-4 rounded btn-reset text-center"
+          >
+            圓餅圖
+          </a>
+          <a
             href="weight-table.html"
             class="text-white font-bold py-2 px-4 rounded btn-reset text-center"
           >
@@ -274,13 +280,6 @@
             >選擇組合:</label
           >
           <select id="combination" class="w-full border rounded p-2 mb-4">
-            <option value="元氣組合">元氣組合</option>
-            <option value="美妍組合">美妍組合</option>
-            <option value="健身組合">健身組合</option>
-            <option value="楓糖肉桂">楓糖肉桂</option>
-            <option value="辣味巧克力">辣味巧克力</option>
-            <option value="椰蓉咖哩">椰蓉咖哩</option>
-            <option value="海鹽迷迭香">海鹽迷迭香</option>
           </select>
 
           <label id="show-cost-label" class="block text-lg font-semibold mb-4">
@@ -354,6 +353,23 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script type="module">
       import { nutsData, totalPrices} from "./lib/nuts-data.js";
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const combinationSelect = document.getElementById("combination");
+        // 清空現有選項
+        combinationSelect.innerHTML = "";
+
+        // 遍歷 nutsData 中的 key，並將它們作為選項填充至下拉選單中
+        for (const key in nutsData) {
+          if (nutsData.hasOwnProperty(key)) {
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = key;
+            combinationSelect.appendChild(option);
+          }
+        }
+      });
+
 
       // 初始化拖曳功能
       $(function () {
