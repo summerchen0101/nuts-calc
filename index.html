@@ -279,8 +279,10 @@
           <label for="combination" class="block text-lg font-semibold mb-2"
             >選擇組合:</label
           >
-          <select id="combination" class="w-full border rounded p-2 mb-4">
-          </select>
+          <select
+            id="combination"
+            class="w-full border rounded p-2 mb-4"
+          ></select>
 
           <label id="show-cost-label" class="block text-lg font-semibold mb-4">
             <input type="checkbox" id="show-cost" onchange="updateCart()" />
@@ -311,6 +313,17 @@
         </div>
 
         <div class="result-container p-4">
+          <label for="extra-percent" class="block text-lg font-semibold mb-2">
+            預估加成 (%):
+          </label>
+          <input
+            type="number"
+            id="extra-percent"
+            class="w-full border rounded p-2 mb-4"
+            value="0"
+            min="0"
+            max="100"
+          />
           <button
             onclick="calculate()"
             class="w-full text-white font-bold py-2 px-4 rounded mb-3 btn-calculate"
@@ -352,7 +365,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script type="module">
-      import { nutsData, totalPrices} from "./lib/nuts-data.js";
+      import { nutsData, totalPrices } from "./lib/nuts-data.js";
 
       document.addEventListener("DOMContentLoaded", function () {
         const combinationSelect = document.getElementById("combination");
@@ -369,7 +382,6 @@
           }
         }
       });
-
 
       // 初始化拖曳功能
       $(function () {
@@ -531,47 +543,47 @@
         showCost
       ) {
         const resultDiv = document.getElementById("result");
+        const extraPercentInput = document.getElementById("extra-percent");
+        const extraPercent = parseFloat(extraPercentInput.value) || 0;
+
         resultDiv.innerHTML = '<ul class="list-disc list-inside">';
         for (const nut in totalNuts) {
           if (totalNuts[nut] > 0) {
             const totalWeightGrams = Math.round(totalNuts[nut]);
-            resultDiv.innerHTML += `<li>${nut}: ${totalWeightGrams} 克 (${(
-              totalWeightGrams / 1000
-            ).toFixed(2)} 公斤)</li>`;
+            const kg = totalWeightGrams / 1000;
+            const extraKg = Math.ceil(kg * (1 + extraPercent / 100));
+            const percentAdded = ((extraKg - kg) / kg) * 100;
+
+            resultDiv.innerHTML += `<li>${nut}: ${kg.toFixed(2)} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)</li>`;
           }
         }
+
         resultDiv.innerHTML += "</ul>";
 
-        // 生成总包数的详细信息
         let packageDetailsText = Object.keys(packageDetails)
           .map((weight) => `${weight}g x ${packageDetails[weight]}包`)
           .join(", ");
 
         resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
-        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
-          2
-        )} 公斤</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
 
         if (showCost) {
           resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
-          resultDiv.innerHTML += `<p>每包平均成本: $${(
-            totalCost / totalPackages
-          ).toFixed(2)}</p>`;
-          resultDiv.innerHTML += `<p>每克平均成本: $${(
-            totalCost / totalWeight
-          ).toFixed(4)}</p>`;
+          resultDiv.innerHTML += `<p>每包平均成本: $${(totalCost / totalPackages).toFixed(2)}</p>`;
+          resultDiv.innerHTML += `<p>每克平均成本: $${(totalCost / totalWeight).toFixed(4)}</p>`;
         }
       };
 
       window.exportToTxt = function exportToTxt() {
         let output = "";
 
-        // 小計部分
+        const extraPercentInput = document.getElementById("extra-percent");
+        const extraPercent = parseFloat(extraPercentInput.value) || 0;
+
         output += "小計:\n";
         cart.forEach((item) => {
           let line = `${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包`;
 
-          // 加入成份比例，过滤 0%
           const nutPercentages = nutsData[item.combination];
           let nutDetails = "成份：";
           for (const nut in nutPercentages) {
@@ -579,10 +591,9 @@
               nutDetails += `${nut}${nutPercentages[nut]}%、`;
             }
           }
-          nutDetails = nutDetails.slice(0, -1); // 去掉最后的逗号
-          line += `\n${nutDetails}`; // 第二行显示成份比例
+          nutDetails = nutDetails.slice(0, -1);
+          line += `\n${nutDetails}`;
 
-          // 如果显示成本
           if (document.getElementById("show-cost").checked) {
             const cost = calculateCost(
               item.combination,
@@ -592,45 +603,37 @@
             const costInfo = `每包成本: $${cost.perPackage.toFixed(
               2
             )}, 每克成本: $${cost.perGram.toFixed(2)}`;
-            line += `\n${costInfo}`; // 第三行显示成本信息
+            line += `\n${costInfo}`;
           }
 
-          output += line + "\n"; // 加入输出
+          output += line + "\n";
         });
 
         output += "\n總計:\n";
         for (const nut in lastResult.totalNuts) {
           if (lastResult.totalNuts[nut] > 0) {
             const totalWeightGrams = Math.round(lastResult.totalNuts[nut]);
-            output += `${nut}: ${totalWeightGrams} 克 (${(
-              totalWeightGrams / 1000
-            ).toFixed(2)} 公斤)\n`;
+            const kg = totalWeightGrams / 1000;
+            const extraKg = Math.ceil(kg * (1 + extraPercent / 100));
+            const percentAdded = ((extraKg - kg) / kg) * 100;
+
+            output += `${nut}: ${kg.toFixed(2)} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)\n`;
           }
         }
 
-        // 生成总包数的详细信息
         let packageDetailsText = Object.keys(lastResult.packageDetails)
-          .map(
-            (weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`
-          )
+          .map((weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`)
           .join(", ");
 
         output += `\n總包數: ${lastResult.totalPackages} (${packageDetailsText})\n`;
-        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
-          2
-        )} 公斤\n`;
+        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(2)} 公斤\n`;
 
         if (lastResult.showCost) {
           output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
-          output += `每包平均成本: $${(
-            lastResult.totalCost / lastResult.totalPackages
-          ).toFixed(2)}\n`;
-          output += `每克平均成本: $${(
-            lastResult.totalCost / lastResult.totalWeight
-          ).toFixed(4)}\n`;
+          output += `每包平均成本: $${(lastResult.totalCost / lastResult.totalPackages).toFixed(2)}\n`;
+          output += `每克平均成本: $${(lastResult.totalCost / lastResult.totalWeight).toFixed(4)}\n`;
         }
 
-        // 生成並下載 txt 文件
         const blob = new Blob([output], { type: "text/plain" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -702,7 +705,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get("auth");
 
-      if(authParam) {
+      if (authParam) {
         localStorage.setItem("auth", authParam);
       }
 
