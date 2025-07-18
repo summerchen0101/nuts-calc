@@ -246,25 +246,8 @@
           <label for="package-weight" class="block text-lg font-semibold mb-2">
             每包克數:
           </label>
-          <div class="mb-4 flex items-center">
-            <input
-              type="radio"
-              id="weight-25"
-              name="package-weight"
-              value="25"
-              class="hidden custom-radio"
-              checked
-            />
-            <label for="weight-25" class="mr-4 custom-radio-label">25 克</label>
-            <input
-              type="radio"
-              id="weight-42"
-              name="package-weight"
-              value="42"
-              class="hidden custom-radio"
-            />
-            <label for="weight-42" class="custom-radio-label">42 克</label>
-          </div>
+          <div id="weight-radio-container" class="mb-4 flex flex-wrap gap-2 items-center"></div>
+
 
           <label for="package-count" class="block text-lg font-semibold mb-2"
             >生產包數:</label
@@ -366,6 +349,33 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script type="module">
       import { nutsData, totalPrices } from "./lib/nuts-data.js";
+
+      const weights = [25, 42, 100, 600];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const container = document.querySelector("#weight-radio-container");
+
+        weights.forEach((weight, idx) => {
+          // 建立 radio 元素
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.id = `weight-${weight}`;
+          input.name = "package-weight";
+          input.value = weight;
+          input.className = "hidden custom-radio";
+          if (idx === 0) input.checked = true;
+
+          // 建立 label 元素
+          const label = document.createElement("label");
+          label.htmlFor = `weight-${weight}`;
+          label.className = "custom-radio-label";
+          label.textContent = `${weight} 克`;
+
+          // 插入至容器中
+          container.appendChild(input);
+          container.appendChild(label);
+        });
+      });
 
       document.addEventListener("DOMContentLoaded", function () {
         const combinationSelect = document.getElementById("combination");
@@ -554,7 +564,9 @@
             const extraKg = Math.ceil(kg * (1 + extraPercent / 100));
             const percentAdded = ((extraKg - kg) / kg) * 100;
 
-            resultDiv.innerHTML += `<li>${nut}: ${kg.toFixed(2)} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)</li>`;
+            resultDiv.innerHTML += `<li>${nut}: ${kg.toFixed(
+              2
+            )} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)</li>`;
           }
         }
 
@@ -565,12 +577,18 @@
           .join(", ");
 
         resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
-        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(2)} 公斤</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
+          2
+        )} 公斤</p>`;
 
         if (showCost) {
           resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
-          resultDiv.innerHTML += `<p>每包平均成本: $${(totalCost / totalPackages).toFixed(2)}</p>`;
-          resultDiv.innerHTML += `<p>每克平均成本: $${(totalCost / totalWeight).toFixed(4)}</p>`;
+          resultDiv.innerHTML += `<p>每包平均成本: $${(
+            totalCost / totalPackages
+          ).toFixed(2)}</p>`;
+          resultDiv.innerHTML += `<p>每克平均成本: $${(
+            totalCost / totalWeight
+          ).toFixed(4)}</p>`;
         }
       };
 
@@ -617,21 +635,31 @@
             const extraKg = Math.ceil(kg * (1 + extraPercent / 100));
             const percentAdded = ((extraKg - kg) / kg) * 100;
 
-            output += `${nut}: ${kg.toFixed(2)} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)\n`;
+            output += `${nut}: ${kg.toFixed(
+              2
+            )} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)\n`;
           }
         }
 
         let packageDetailsText = Object.keys(lastResult.packageDetails)
-          .map((weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`)
+          .map(
+            (weight) => `${weight}g x ${lastResult.packageDetails[weight]}包`
+          )
           .join(", ");
 
         output += `\n總包數: ${lastResult.totalPackages} (${packageDetailsText})\n`;
-        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(2)} 公斤\n`;
+        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
+          2
+        )} 公斤\n`;
 
         if (lastResult.showCost) {
           output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
-          output += `每包平均成本: $${(lastResult.totalCost / lastResult.totalPackages).toFixed(2)}\n`;
-          output += `每克平均成本: $${(lastResult.totalCost / lastResult.totalWeight).toFixed(4)}\n`;
+          output += `每包平均成本: $${(
+            lastResult.totalCost / lastResult.totalPackages
+          ).toFixed(2)}\n`;
+          output += `每克平均成本: $${(
+            lastResult.totalCost / lastResult.totalWeight
+          ).toFixed(4)}\n`;
         }
 
         const blob = new Blob([output], { type: "text/plain" });
