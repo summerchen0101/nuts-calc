@@ -418,7 +418,18 @@
 
       // 初始化拖曳功能
       $(function () {
-        $(".sortable").sortable();
+        $(".sortable").sortable({
+          update: function () {
+            // 取得排序後的新順序
+            const newCart = [];
+            $("#cart-list li").each(function () {
+              const originalIndex = parseInt(this.dataset.index, 10);
+              newCart.push(cart[originalIndex]);
+            });
+            cart = newCart;
+            updateCart(); // 重新渲染一次以刷新 data-index
+          },
+        });
         $(".sortable").disableSelection();
       });
 
@@ -455,6 +466,7 @@
           nutDetails = nutDetails.slice(0, -1); // 去掉最後逗號
 
           const listItem = document.createElement("li");
+          listItem.dataset.index = index;
 
           const mainContent = document.createElement("div");
           mainContent.className = "flex-1";
@@ -760,48 +772,6 @@
         document.getElementById("costAlert").style.display = "none";
       };
 
-      window.updateCart = function updateCart() {
-        const cartList = document.getElementById("cart-list");
-        const showCost = document.getElementById("show-cost").checked;
-        cartList.innerHTML = "";
-        cart.forEach((item, index) => {
-          const nutPercentages = nutsData[item.combination];
-          let nutDetails = "成份：";
-
-          // 过滤掉 0% 的坚果
-          for (const nut in nutPercentages) {
-            if (nutPercentages[nut] > 0) {
-              nutDetails += `${nut}${nutPercentages[nut]}%、`;
-            }
-          }
-
-          nutDetails = nutDetails.slice(0, -1); // 去掉最后的逗号
-
-          const listItem = document.createElement("li");
-          listItem.innerHTML = `
-            <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
-            <div class="cost-info">${nutDetails}</div>
-            <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
-          `;
-
-          if (showCost) {
-            const cost = calculateCost(
-              item.combination,
-              item.weightPerPackage,
-              item.packageCount
-            );
-            const costInfo = document.createElement("div");
-            costInfo.classList.add("cost-info");
-            costInfo.textContent = `每包成本: $${cost.perPackage.toFixed(
-              2
-            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
-            listItem.appendChild(costInfo);
-          }
-
-          cartList.appendChild(listItem);
-        });
-      };
-
       function renderSavedRecords() {
         const recordList = document.getElementById("record-list");
         recordList.innerHTML = "";
@@ -872,7 +842,6 @@
         }
       };
 
-
       window.moveItem = function moveItem(index, direction) {
         const newIndex = index + direction;
         if (newIndex < 0 || newIndex >= cart.length) return;
@@ -886,7 +855,6 @@
       };
 
       // --------- windows 開頭函示結尾 --------- //
-
 
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get("auth");
