@@ -443,12 +443,25 @@
         const cartList = document.getElementById("cart-list");
         const showCost = document.getElementById("show-cost").checked;
         cartList.innerHTML = "";
+
         cart.forEach((item, index) => {
+          const nutPercentages = nutsData[item.combination];
+          let nutDetails = "成份：";
+          for (const nut in nutPercentages) {
+            if (nutPercentages[nut] > 0) {
+              nutDetails += `${nut}${nutPercentages[nut]}%、`;
+            }
+          }
+          nutDetails = nutDetails.slice(0, -1); // 去掉最後逗號
+
           const listItem = document.createElement("li");
-          listItem.innerHTML = `
-            <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
-            <button class="delete-button" onclick="removeFromCart(${index})">刪除</button>
-          `;
+
+          const mainContent = document.createElement("div");
+          mainContent.className = "flex-1";
+          mainContent.innerHTML = `
+      <span>${item.weightPerPackage}g ${item.combination} - ${item.packageCount} 包</span>
+      <div class="cost-info">${nutDetails}</div>
+    `;
 
           if (showCost) {
             const cost = calculateCost(
@@ -461,9 +474,35 @@
             costInfo.textContent = `每包成本: $${cost.perPackage.toFixed(
               2
             )}, 每克成本: $${cost.perGram.toFixed(2)}`;
-            listItem.appendChild(costInfo);
+            mainContent.appendChild(costInfo);
           }
 
+          const buttonGroup = document.createElement("div");
+          buttonGroup.className = "flex flex-col gap-1 ml-2";
+
+          const upBtn = document.createElement("button");
+          upBtn.textContent = "↑";
+          upBtn.className = "btn-reset text-white px-2 py-1 text-sm rounded";
+          upBtn.onclick = () => moveItem(index, -1);
+          upBtn.disabled = index === 0;
+
+          const downBtn = document.createElement("button");
+          downBtn.textContent = "↓";
+          downBtn.className = "btn-reset text-white px-2 py-1 text-sm rounded";
+          downBtn.onclick = () => moveItem(index, 1);
+          downBtn.disabled = index === cart.length - 1;
+
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "刪除";
+          delBtn.className = "delete-button text-sm";
+          delBtn.onclick = () => removeFromCart(index);
+
+          buttonGroup.appendChild(upBtn);
+          buttonGroup.appendChild(downBtn);
+          buttonGroup.appendChild(delBtn);
+
+          listItem.appendChild(mainContent);
+          listItem.appendChild(buttonGroup);
           cartList.appendChild(listItem);
         });
       };
@@ -832,6 +871,22 @@
           renderSavedRecords();
         }
       };
+
+
+      window.moveItem = function moveItem(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= cart.length) return;
+
+        // swap
+        const temp = cart[newIndex];
+        cart[newIndex] = cart[index];
+        cart[index] = temp;
+
+        updateCart();
+      };
+
+      // --------- windows 開頭函示結尾 --------- //
+
 
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get("auth");
