@@ -246,8 +246,10 @@
           <label for="package-weight" class="block text-lg font-semibold mb-2">
             每包克數:
           </label>
-          <div id="weight-radio-container" class="mb-4 flex flex-wrap gap-2 items-center"></div>
-
+          <div
+            id="weight-radio-container"
+            class="mb-4 flex flex-wrap gap-2 items-center"
+          ></div>
 
           <label for="package-count" class="block text-lg font-semibold mb-2"
             >生產包數:</label
@@ -290,8 +292,28 @@
 
         <div class="subtotal-container p-4">
           <h3 class="text-xl font-bold mb-4">小計</h3>
+
           <div class="cart-items" id="cart-items">
             <ul id="cart-list" class="sortable"></ul>
+          </div>
+
+          <button
+            onclick="saveCurrentCart()"
+            class="w-full text-white font-bold py-2 px-4 rounded mb-4 btn-add"
+          >
+            儲存目前小計
+          </button>
+          <div id="saved-records" class="">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="text-lg font-bold">過往紀錄</h4>
+              <button
+                onclick="clearAllSavedRecords()"
+                class="btn-reset text-white text-sm font-bold py-1 px-2 rounded"
+              >
+                清空全部
+              </button>
+            </div>
+            <ul id="record-list" class="space-y-2"></ul>
           </div>
         </div>
 
@@ -375,6 +397,7 @@
           container.appendChild(input);
           container.appendChild(label);
         });
+        renderSavedRecords();
       });
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -569,25 +592,31 @@
             )} 公斤 / ${extraKg}公斤 (+${percentAdded.toFixed(2)}%)</li>`;
           }
         }
-
         resultDiv.innerHTML += "</ul>";
 
         let packageDetailsText = Object.keys(packageDetails)
           .map((weight) => `${weight}g x ${packageDetails[weight]}包`)
           .join(", ");
 
+        const totalWeightWithExtra = totalWeight * (1 + extraPercent / 100);
+        const totalCostWithExtra = showCost
+          ? totalCost * (1 + extraPercent / 100)
+          : 0;
+
         resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
-        resultDiv.innerHTML += `<p>總重量: ${(totalWeight / 1000).toFixed(
-          2
-        )} 公斤</p>`;
+        resultDiv.innerHTML += `<p>總重量: ${(
+          totalWeightWithExtra / 1000
+        ).toFixed(2)} 公斤</p>`;
 
         if (showCost) {
-          resultDiv.innerHTML += `<p>總成本: $${totalCost.toFixed(2)}</p>`;
+          resultDiv.innerHTML += `<p>總成本: $${totalCostWithExtra.toFixed(
+            2
+          )}</p>`;
           resultDiv.innerHTML += `<p>每包平均成本: $${(
-            totalCost / totalPackages
+            totalCostWithExtra / totalPackages
           ).toFixed(2)}</p>`;
           resultDiv.innerHTML += `<p>每克平均成本: $${(
-            totalCost / totalWeight
+            totalCostWithExtra / totalWeightWithExtra
           ).toFixed(4)}</p>`;
         }
       };
@@ -648,9 +677,14 @@
           .join(", ");
 
         output += `\n總包數: ${lastResult.totalPackages} (${packageDetailsText})\n`;
-        output += `總重量: ${(lastResult.totalWeight / 1000).toFixed(
-          2
-        )} 公斤\n`;
+
+        const totalWeightWithExtra =
+          lastResult.totalWeight * (1 + extraPercent / 100);
+        const totalCostWithExtra = lastResult.showCost
+          ? lastResult.totalCost * (1 + extraPercent / 100)
+          : 0;
+
+        output += `總重量: ${(totalWeightWithExtra / 1000).toFixed(2)} 公斤\n`;
 
         if (lastResult.showCost) {
           output += `總成本: $${lastResult.totalCost.toFixed(2)}\n`;
@@ -728,8 +762,77 @@
           cartList.appendChild(listItem);
         });
       };
-    </script>
-    <script>
+
+      function renderSavedRecords() {
+        const recordList = document.getElementById("record-list");
+        recordList.innerHTML = "";
+
+        const saved = JSON.parse(localStorage.getItem("savedCarts") || "[]");
+
+        saved.forEach((record, index) => {
+          const li = document.createElement("li");
+          li.className =
+            "flex justify-between items-center bg-gray-100 p-2 rounded";
+
+          const text = document.createElement("span");
+          text.textContent = `${record.timestamp} - ${record.cart.length}筆項目`;
+
+          const buttonGroup = document.createElement("div");
+          buttonGroup.className = "flex gap-2";
+
+          const loadBtn = document.createElement("button");
+          loadBtn.textContent = "載入";
+          loadBtn.className =
+            "btn-add text-white text-sm font-bold py-1 px-2 rounded";
+          loadBtn.onclick = () => {
+            cart = record.cart;
+            updateCart();
+          };
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "刪除";
+          deleteBtn.className =
+            "btn-reset text-white text-sm font-bold py-1 px-2 rounded";
+          deleteBtn.onclick = () => {
+            deleteSavedRecord(index);
+          };
+
+          buttonGroup.appendChild(loadBtn);
+          buttonGroup.appendChild(deleteBtn);
+          li.appendChild(text);
+          li.appendChild(buttonGroup);
+          recordList.appendChild(li);
+        });
+      }
+
+      window.saveCurrentCart = function saveCurrentCart() {
+        if (cart.length === 0) return;
+
+        const saved = JSON.parse(localStorage.getItem("savedCarts") || "[]");
+        const timestamp = new Date().toLocaleString("zh-TW");
+        const newRecord = { timestamp, cart: [...cart] };
+
+        saved.unshift(newRecord);
+        if (saved.length > 5) saved.pop();
+
+        localStorage.setItem("savedCarts", JSON.stringify(saved));
+        renderSavedRecords();
+      };
+
+      window.deleteSavedRecord = function deleteSavedRecord(index) {
+        const saved = JSON.parse(localStorage.getItem("savedCarts") || "[]");
+        saved.splice(index, 1);
+        localStorage.setItem("savedCarts", JSON.stringify(saved));
+        renderSavedRecords();
+      };
+
+      window.clearAllSavedRecords = function clearAllSavedRecords() {
+        if (confirm("確定要清空所有過往紀錄嗎？")) {
+          localStorage.removeItem("savedCarts");
+          renderSavedRecords();
+        }
+      };
+
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get("auth");
 
