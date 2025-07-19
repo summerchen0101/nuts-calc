@@ -370,7 +370,11 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script type="module">
-      import { nutsData, totalPrices } from "./lib/nuts-data.js";
+      import {
+        nutsData,
+        totalPrices,
+        printingPackagingCost,
+      } from "./lib/nuts-data.js";
 
       const weights = [25, 42, 100, 600];
 
@@ -483,9 +487,18 @@
             );
             const costInfo = document.createElement("div");
             costInfo.classList.add("cost-info");
-            costInfo.textContent = `每包成本: $${cost.perPackage.toFixed(
-              2
-            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
+            if (cost) {
+              costInfo.textContent = `原料成本: $${cost.materialCost.toFixed(
+                2
+              )}, 印刷: $${cost.printing.toFixed(
+                2
+              )}, 包裝: $${cost.packaging.toFixed(
+                2
+              )}, 總每包: $${cost.totalPerPackage.toFixed(2)}`;
+            } else {
+              costInfo.textContent = `成本資料不完整`;
+            }
+
             mainContent.appendChild(costInfo);
           }
 
@@ -525,20 +538,30 @@
         packageCount
       ) {
         const nutPercentages = nutsData[combination];
-        let totalCost = 0;
+        let materialCost = 0;
 
         for (const nut in nutPercentages) {
           const percentage = nutPercentages[nut] / 100;
           const nutWeight = percentage * weightPerPackage;
-          const nutCostPerGram = totalPrices[nut] / 1000;
-          totalCost += nutWeight * nutCostPerGram;
+          const unitPrice = totalPrices[nut] / 1000; // 單位為每克
+          materialCost += nutWeight * unitPrice;
         }
 
-        const totalCostForAllPackages = totalCost * packageCount;
+        const costExtras = printingPackagingCost[weightPerPackage] || {
+          printing: 0,
+          packaging: 0,
+        };
+
+        const totalPerPackage =
+          materialCost + costExtras.printing + costExtras.packaging;
+        const totalCost = totalPerPackage * packageCount;
+
         return {
-          totalCost: totalCostForAllPackages,
-          perPackage: totalCost,
-          perGram: totalCost / weightPerPackage,
+          materialCost,
+          printing: costExtras.printing,
+          packaging: costExtras.packaging,
+          totalPerPackage,
+          totalCost,
         };
       };
 
@@ -560,6 +583,10 @@
         let totalWeight = 0;
         let totalPackages = 0;
         let totalCost = 0;
+        let materialCostTotal = 0;
+        let printingCostTotal = 0;
+        let packagingCostTotal = 0;
+
         let packageDetails = {};
         let showCost = document.getElementById("show-cost").checked;
 
@@ -590,6 +617,10 @@
               item.weightPerPackage,
               item.packageCount
             );
+            materialCostTotal += cost.materialCost * item.packageCount;
+            printingCostTotal += cost.printing * item.packageCount;
+            packagingCostTotal += cost.packaging * item.packageCount;
+
             totalCost += cost.totalCost;
           }
         });
@@ -601,6 +632,10 @@
           totalCost,
           packageDetails,
           showCost,
+          materialCostTotal,
+          printingCostTotal,
+          packagingCostTotal,
+
         };
 
         displayResult(
@@ -650,9 +685,16 @@
           .join(", ");
 
         const totalWeightWithExtra = totalWeight * (1 + extraPercent / 100);
+        const extraMultiplier = 1 + extraPercent / 100;
+        const materialCostTotal = lastResult.materialCostTotal || 0;
+        const printingCostTotal = lastResult.printingCostTotal || 0;
+        const packagingCostTotal = lastResult.packagingCostTotal || 0;
+
         const totalCostWithExtra = showCost
-          ? totalCost * (1 + extraPercent / 100)
+          ? materialCostTotal * extraMultiplier + printingCostTotal + packagingCostTotal
           : 0;
+
+
 
         resultDiv.innerHTML += `<p class="mt-10">總包數: ${totalPackages} (${packageDetailsText})</p>`;
         resultDiv.innerHTML += `<p>總重量: ${(
@@ -660,15 +702,23 @@
         ).toFixed(2)} 公斤</p>`;
 
         if (showCost) {
+          const extraMultiplier = 1 + extraPercent / 100;
+          const materialCostTotal = lastResult.materialCostTotal || 0;
+          const printingCostTotal = lastResult.printingCostTotal || 0;
+          const packagingCostTotal = lastResult.packagingCostTotal || 0;
+
+          const costNote = `（原料：$${(
+            materialCostTotal * extraMultiplier
+          ).toFixed(2)}, 印刷：$${printingCostTotal.toFixed(
+            2
+          )}, 包裝：$${packagingCostTotal.toFixed(2)}）`;
+
           resultDiv.innerHTML += `<p>總成本: $${totalCostWithExtra.toFixed(
             2
-          )}</p>`;
+          )}${costNote}</p>`;
           resultDiv.innerHTML += `<p>每包平均成本: $${(
             totalCostWithExtra / totalPackages
           ).toFixed(2)}</p>`;
-          resultDiv.innerHTML += `<p>每克平均成本: $${(
-            totalCostWithExtra / totalWeightWithExtra
-          ).toFixed(4)}</p>`;
         }
       };
 
@@ -698,10 +748,16 @@
               item.weightPerPackage,
               item.packageCount
             );
-            const costInfo = `每包成本: $${cost.perPackage.toFixed(
-              2
-            )}, 每克成本: $${cost.perGram.toFixed(2)}`;
-            line += `\n${costInfo}`;
+            if (cost) {
+              const costLine = `原料成本: $${cost.materialCost.toFixed(
+                2
+              )}, 印刷: $${cost.printing.toFixed(
+                2
+              )}, 包裝: $${cost.packaging.toFixed(
+                2
+              )}, 總每包: $${cost.totalPerPackage.toFixed(2)}`;
+              line += `\n${costLine}`;
+            }
           }
 
           output += line + "\n";
