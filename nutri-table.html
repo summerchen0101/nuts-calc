@@ -167,11 +167,7 @@
       </div>
       <h1 class="text-3xl font-bold text-center mb-6">堅果營養價值表</h1>
 
-      <div class="tabs">
-        <div class="tab tab-active" id="tab-25g">25g</div>
-        <div class="tab" id="tab-42g">42g</div>
-        <div class="tab" id="tab-100g">100g</div> <!-- 新增100g按鈕 -->
-      </div>
+      <div class="tabs"></div>
 
       <div id="tables-container"></div>
 
@@ -186,10 +182,26 @@
     </div>
 
     <script type="module">
-      import { nutsData, nutColors, nutritionData } from "./lib/nuts-data.js";
+      import {
+        nutsData,
+        nutColors,
+        nutritionData,
+        weights,
+      } from "./lib/nuts-data.js";
 
       const tablesContainer = document.getElementById("tables-container");
-      let currentWeight = 25;
+      const tabsContainer = document.querySelector(".tabs");
+      let currentWeight = weights[0]; // 預設第一個重量
+
+      // 動態生成 tabs
+      weights.forEach((w) => {
+        const tab = document.createElement("div");
+        tab.className = `tab ${w === currentWeight ? "tab-active" : ""}`;
+        tab.id = `tab-${w}g`;
+        tab.textContent = `${w}g`;
+        tab.addEventListener("click", () => switchWeight(w));
+        tabsContainer.appendChild(tab);
+      });
 
       function generateTables(weight) {
         tablesContainer.innerHTML = "";
@@ -197,7 +209,6 @@
         Object.keys(nutsData).forEach((combination) => {
           const nuts = nutsData[combination];
 
-          // 初始化總值
           let totalCalories = 0;
           let totalProtein = 0;
           let totalFat = 0;
@@ -206,34 +217,33 @@
           let totalCarbs = 0;
           let totalSugar = 0;
           let totalFiber = 0;
-          let totalSodium = 0; // 新增鈉的總量
+          let totalSodium = 0;
           let totalWeight = 0;
           let totalPercentage = 0;
 
           let tableHTML = `
-      <div class="table-container">
-        <div class="combination-title">${combination}</div>
-        <table>
-          <thead>
-            <tr>
-              <th>成分</th>
-              <th>百分比 (%)</th>
-              <th>重量 (g)</th>
-              <th>熱量 (kcal)</th>
-              <th>蛋白質 (g)</th>
-              <th>脂肪 (g)</th>
-              <th>飽和脂肪 (g)</th>
-              <th>反式脂肪 (g)</th>
-              <th>碳水 (g)</th>
-              <th>糖 (g)</th>
-              <th>膳食纖維 (g)</th>
-              <th>鈉 (mg)</th> <!-- 新增鈉 -->
-            </tr>
-          </thead>
-          <tbody>
-    `;
+        <div class="table-container">
+          <div class="combination-title">${combination}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>成分</th>
+                <th>百分比 (%)</th>
+                <th>重量 (g)</th>
+                <th>熱量 (kcal)</th>
+                <th>蛋白質 (g)</th>
+                <th>脂肪 (g)</th>
+                <th>飽和脂肪 (g)</th>
+                <th>反式脂肪 (g)</th>
+                <th>碳水 (g)</th>
+                <th>糖 (g)</th>
+                <th>膳食纖維 (g)</th>
+                <th>鈉 (mg)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-          // 為每個堅果計算營養值
           Object.keys(nuts).forEach((nut) => {
             const percentage = nuts[nut];
             const calculatedWeight = (percentage / 100) * weight;
@@ -270,11 +280,10 @@
                 nutrition.膳食纖維 *
                 (calculatedWeight / 100)
               ).toFixed(2);
-              const sodium = (
-                nutrition.鈉 * (calculatedWeight / 100)
-              ).toFixed(2); // 計算鈉含量
+              const sodium = (nutrition.鈉 * (calculatedWeight / 100)).toFixed(
+                2
+              );
 
-              // 將值累加到總計變量
               totalCalories += parseFloat(calories);
               totalProtein += parseFloat(protein);
               totalFat += parseFloat(fat);
@@ -283,54 +292,52 @@
               totalCarbs += parseFloat(carbs);
               totalSugar += parseFloat(sugar);
               totalFiber += parseFloat(fiber);
-              totalSodium += parseFloat(sodium); // 累加鈉含量
+              totalSodium += parseFloat(sodium);
               totalWeight += calculatedWeight;
               totalPercentage += percentage;
 
               tableHTML += `
-          <tr>
-            <td class="nut-cell" style="${colorStyle}">${nut}</td>
-            <td>${percentage}%</td>
-            <td>${calculatedWeight.toFixed(2)}g</td>
-            <td>${calories}</td>
-            <td>${protein}</td>
-            <td>${fat}</td>
-            <td>${saturatedFat}</td>
-            <td>${transFat}</td>
-            <td>${carbs}</td>
-            <td>${sugar}</td>
-            <td>${fiber}</td>
-            <td>${sodium}</td> <!-- 顯示鈉 -->
-          </tr>
-        `;
+            <tr>
+              <td class="nut-cell" style="${colorStyle}">${nut}</td>
+              <td>${percentage}%</td>
+              <td>${calculatedWeight.toFixed(2)}g</td>
+              <td>${calories}</td>
+              <td>${protein}</td>
+              <td>${fat}</td>
+              <td>${saturatedFat}</td>
+              <td>${transFat}</td>
+              <td>${carbs}</td>
+              <td>${sugar}</td>
+              <td>${fiber}</td>
+              <td>${sodium}</td>
+            </tr>
+          `;
             }
           });
 
-          // 增加總計行
           tableHTML += `
-      <tr class="total-row">
-        <td>總計</td>
-        <td>${totalPercentage}%</td>
-        <td>${totalWeight.toFixed(2)}g</td>
-        <td>${totalCalories.toFixed(2)}</td>
-        <td>${totalProtein.toFixed(2)}</td>
-        <td>${totalFat.toFixed(2)}</td>
-        <td>${totalSaturatedFat.toFixed(2)}</td>
-        <td>${totalTransFat.toFixed(2)}</td>
-        <td>${totalCarbs.toFixed(2)}</td>
-        <td>${totalSugar.toFixed(2)}</td>
-        <td>${totalFiber.toFixed(2)}</td>
-        <td>${totalSodium.toFixed(2)}</td> <!-- 顯示鈉總計 -->
-      </tr>
-    `;
+        <tr class="total-row">
+          <td>總計</td>
+          <td>${totalPercentage}%</td>
+          <td>${totalWeight.toFixed(2)}g</td>
+          <td>${totalCalories.toFixed(2)}</td>
+          <td>${totalProtein.toFixed(2)}</td>
+          <td>${totalFat.toFixed(2)}</td>
+          <td>${totalSaturatedFat.toFixed(2)}</td>
+          <td>${totalTransFat.toFixed(2)}</td>
+          <td>${totalCarbs.toFixed(2)}</td>
+          <td>${totalSugar.toFixed(2)}</td>
+          <td>${totalFiber.toFixed(2)}</td>
+          <td>${totalSodium.toFixed(2)}</td>
+        </tr>
+      `;
 
           tableHTML += `
           </tbody>
         </table>
       </div>
-    `;
+      `;
 
-          // 插入到頁面
           tablesContainer.insertAdjacentHTML("beforeend", tableHTML);
         });
       }
@@ -344,71 +351,54 @@
         document.getElementById(`tab-${weight}g`).classList.add("tab-active");
       }
 
-      document
-        .getElementById("tab-25g")
-        .addEventListener("click", () => switchWeight(25));
-      document
-        .getElementById("tab-42g")
-        .addEventListener("click", () => switchWeight(42));
-      document
-        .getElementById("tab-100g")
-        .addEventListener("click", () => switchWeight(100)); // 新增100g的處理
-
       generateTables(currentWeight);
 
-      // 匯出Excel功能
-      document.getElementById("exportExcel").addEventListener("click", function () {
-        const tables = document.querySelectorAll("table");
+      // 匯出Excel
+      document
+        .getElementById("exportExcel")
+        .addEventListener("click", function () {
+          const tables = document.querySelectorAll("table");
+          const workbook = XLSX.utils.book_new();
 
-        // 初始化 Excel 工作簿
-        const workbook = XLSX.utils.book_new();
+          tables.forEach((table, index) => {
+            const rows = [];
+            const headerRow = [];
 
-        tables.forEach((table, index) => {
-          const rows = [];
-          const headerRow = [];
-
-          // 獲取表頭
-          table.querySelectorAll("th").forEach((th) => {
-            headerRow.push(th.textContent.trim());
-          });
-          rows.push(headerRow);
-
-          // 獲取表格數據行
-          table.querySelectorAll("tbody tr").forEach((tr) => {
-            const row = [];
-            tr.querySelectorAll("td").forEach((td, colIndex) => {
-              let cellValue = td.textContent.trim();
-
-              // 將百分比列 (B列) 的數值並加上%
-              if (colIndex === 1) {
-                let percentageValue = parseFloat(cellValue);
-                if (!isNaN(percentageValue)) {
-                  cellValue = (percentageValue).toFixed(0) + "%";
-                }
-              }
-
-              row.push(cellValue);
+            table.querySelectorAll("th").forEach((th) => {
+              headerRow.push(th.textContent.trim());
             });
-            rows.push(row);
+            rows.push(headerRow);
+
+            table.querySelectorAll("tbody tr").forEach((tr) => {
+              const row = [];
+              tr.querySelectorAll("td").forEach((td, colIndex) => {
+                let cellValue = td.textContent.trim();
+                if (colIndex === 1) {
+                  let percentageValue = parseFloat(cellValue);
+                  if (!isNaN(percentageValue)) {
+                    cellValue = percentageValue.toFixed(0) + "%";
+                  }
+                }
+                row.push(cellValue);
+              });
+              rows.push(row);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            const title =
+              table.previousElementSibling.textContent || `Sheet${index + 1}`;
+            XLSX.utils.book_append_sheet(workbook, ws, title.trim());
           });
 
-          // 將數據轉換成工作表
-          const ws = XLSX.utils.aoa_to_sheet(rows);
-
-          // 設定工作表名稱
-          const title = table.previousElementSibling.textContent || `Sheet${index + 1}`;
-          XLSX.utils.book_append_sheet(workbook, ws, title.trim());
+          XLSX.writeFile(workbook, "堅果營養價值表.xlsx");
         });
-
-        // 觸發 Excel 文件下載
-        XLSX.writeFile(workbook, "堅果營養價值表.xlsx");
-      });
     </script>
+
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const authParam = urlParams.get("auth");
 
-      if(authParam) {
+      if (authParam) {
         localStorage.setItem("auth", authParam);
       }
 
